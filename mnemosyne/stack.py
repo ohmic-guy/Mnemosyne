@@ -1,4 +1,4 @@
-# timelock/stack.py
+# mnemosyne/stack.py
 
 from .node import Node
 
