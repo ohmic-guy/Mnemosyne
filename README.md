@@ -1,4 +1,4 @@
-# Mnemosyne - Time-Aware Data Structures
+# Mnemosyne: Time-Aware Data Structures
 
 A Python library for building time-aware data structures. It ships with a stack implementation initially, and the same versioning, checkpoint, and undo/redo core can be reused for queues, deques, trees, or any structure where you want time-travel semantics.
 
