@@ -19,9 +19,7 @@ class TimeAwareStack:
         self._undo_stack = []             # for undo
         self._redo_stack = []             # for redo
 
-    # -------------------
     # Core Operations
-    # -------------------
     def push(self, value, version=None):
         version = self._current_version if version is None else version
         top = self._versions[version]
@@ -61,7 +59,6 @@ class TimeAwareStack:
 
     # -------------------
     # Version Utilities
-    # -------------------
     def show_version(self, version):
         """Return stack as list for a given version"""
         node = self._versions.get(version)
@@ -87,7 +84,6 @@ class TimeAwareStack:
 
     # -------------------
     # Undo / Redo
-    # -------------------
     def undo(self):
         if len(self._undo_stack) < 2:
             raise IndexError("Nothing to undo")
@@ -106,7 +102,6 @@ class TimeAwareStack:
 
     # -------------------
     # Version Difference
-    # -------------------
     def diff(self, v1, v2):
         """Show elements added or removed between two versions"""
         s1 = set(self.show_version(v1))
@@ -117,7 +112,6 @@ class TimeAwareStack:
 
     # -------------------
     # Visualization
-    # -------------------
     def visualize(self, version=None):
         version = self._current_version if version is None else version
         stack_list = self.show_version(version)

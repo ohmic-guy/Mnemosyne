@@ -1,4 +1,4 @@
-# timelock/node.py
+# mnemosyne/node.py
 
 class Node:
     __slots__ = ("value", "prev")
