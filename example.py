@@ -1,4 +1,4 @@
-from timelock.stack import TimeAwareStack
+from mnemosyne.stack import TimeAwareStack
 
 s = TimeAwareStack()
 
