@@ -15,13 +15,13 @@ A Python library for building time-aware data structures. It ships with a stack 
 Clone the repository and import the module:
 
 ```python
-from timelock.stack import TimeAwareStack
+from Mnemosyne.stack import TimeAwareStack
 ```
 
 ## Quick Start
 
 ```python
-from timelock.stack import TimeAwareStack
+from Mnemosyne.stack import TimeAwareStack
 
 # Create a new time-aware stack
 s = TimeAwareStack()
@@ -115,7 +115,7 @@ Redo the last undone operation. Returns the new current version ID.
 
 ## How It Works
 
-TimeLock uses a **linked-list node structure** to maintain immutable versions:
+Mnemosyne uses a **linked-list node structure** to maintain immutable versions:
 
 - Each stack state is represented as a chain of `Node` objects
 - Every push/pop operation creates a new version ID
@@ -141,7 +141,7 @@ Perfect for applications that need:
 ## File Structure
 
 ```
-timelock/
+Mnemosyne/
   __init.py__      # Package initialization
   node.py          # Node class for linked-list structure
   stack.py         # TimeAwareStack implementation
@@ -156,4 +156,4 @@ python3 example.py
 
 ## Author Notes
 
-TimeLock provides a clean, functional approach to stack operations with complete history preservation. Use it when you need to explore alternative paths through your data without losing the original path.
+Mnemosyne provides a clean, functional approach to stack operations with complete history preservation. Use it when you need to explore alternative paths through your data without losing the original path.
