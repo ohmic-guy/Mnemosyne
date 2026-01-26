@@ -15,13 +15,13 @@ A Python library for building time-aware data structures. It ships with a stack 
 Clone the repository and import the module:
 
 ```python
-from Mnemosyne.stack import TimeAwareStack
+from mnemosyne.stack import TimeAwareStack
 ```
 
 ## Quick Start
 
 ```python
-from Mnemosyne.stack import TimeAwareStack
+from mnemosyne.stack import TimeAwareStack
 
 # Create a new time-aware stack
 s = TimeAwareStack()
@@ -141,7 +141,7 @@ Perfect for applications that need:
 ## File Structure
 
 ```
-Mnemosyne/
+mnemosyne/
   __init.py__      # Package initialization
   node.py          # Node class for linked-list structure
   stack.py         # TimeAwareStack implementation
