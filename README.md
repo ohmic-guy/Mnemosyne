@@ -1,12 +1,12 @@
-# TimeLock - Time-Aware Stack
+# Mnemosyne - Time-Aware Data Structures
 
-A Python library that implements a stack data structure with powerful time-travel capabilities. Track versions of your stack, create named checkpoints, and navigate through the history of your data with undo/redo functionality.
+A Python library for building time-aware data structures. It ships with a stack implementation initially, and the same versioning, checkpoint, and undo/redo core can be reused for queues, deques, trees, or any structure where you want time-travel semantics.
 
 ## Features
 
-- **Immutable Versions**: Every operation creates a new immutable version of the stack
-- **Version History**: Access and inspect any previous version of your stack
-- **Named Checkpoints**: Save important stack states with meaningful names
+- **Immutable Versions**: Every operation creates a new immutable version
+- **Version History**: Access and inspect any previous version
+- **Named Checkpoints**: Save important states with meaningful names
 - **Undo/Redo**: Navigate backward and forward through your operation history
 - **Version Visualization**: View all versions and their state at a glance
 
@@ -122,6 +122,14 @@ TimeLock uses a **linked-list node structure** to maintain immutable versions:
 - Version history is preserved, allowing non-destructive time travel
 - Checkpoints provide semantic bookmarks in your history
 
+## Extending to Other Data Structures
+
+The core version-tracking pattern works for queues, deques, trees, and more:
+- Define how a node/state references the previous state (or children) immutably.
+- Implement operations (enqueue, dequeue, insert, delete, etc.) so each returns a new top/root reference and version ID.
+- Reuse the existing bookkeeping: `self._versions`, `self._current_version`, `_undo_stack`, `_redo_stack`, and checkpoints.
+- Expose helpers like `show_version` tailored to your structure (e.g., breadth-first for trees).
+
 ## Example Use Case
 
 Perfect for applications that need:
@@ -134,7 +142,7 @@ Perfect for applications that need:
 
 ```
 timelock/
-  __init__.py      # Package initialization
+  __init.py__      # Package initialization
   node.py          # Node class for linked-list structure
   stack.py         # TimeAwareStack implementation
 example.py         # Usage examples
