@@ -71,3 +71,14 @@ class TimeAwareStack:
         Returns the current version number.
         """
         return self._current_version
+    
+    def show_version(self, version):
+        """ Return the full stack at a given version as a list
+        (top of stack is last element in list)"""
+        
+        node = self._versions.get(version)
+        result = []
+        while node:
+            result.append(node.value)
+            node = node.prev
+        return result[::-1]
