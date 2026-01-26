@@ -4,81 +4,125 @@ from .node import Node
 
 class TimeAwareStack:
     """
-    A Time-Aware Stack:
-    - Each push/pop creates a new version
-    - Past versions are immutable and accessible
-    - Time is represented by version numbers
+    Time-Aware Stack with full features:
+    - Immutable versions of the stack
+    - Version history tracking
+    - Named checkpoints
+    - Undo / Redo
+    - Version difference and visualization
     """
 
     def __init__(self):
-        # Dictionary mapping version_id → top Node
-        self._versions = {0: None}  
+        self._versions = {0: None}        # version_id -> top Node
         self._current_version = 0
+        self._checkpoints = {}            # name -> version_id
+        self._undo_stack = []             # for undo
+        self._redo_stack = []             # for redo
 
+    # -------------------
+    # Core Operations
+    # -------------------
     def push(self, value, version=None):
-        """
-        Push a value onto the stack.
-        Returns the new version number.
-        """
-        # Use current version if none specified
-        if version is None:
-            version = self._current_version
-
-        # Get the top node of the specified version
+        version = self._current_version if version is None else version
         top = self._versions[version]
-
-        # Create a new immutable node pointing to previous top
         new_node = Node(value, top)
 
-        # Increment version and store the new top
         self._current_version += 1
         self._versions[self._current_version] = new_node
+
+        # Track undo/redo
+        self._undo_stack.append(self._current_version)
+        self._redo_stack.clear()
 
         return self._current_version
 
     def pop(self, version=None):
-        """
-        Pop the top value from the stack.
-        Returns a tuple: (popped_value, new_version)
-        """
-        if version is None:
-            version = self._current_version
-
+        version = self._current_version if version is None else version
         top = self._versions[version]
-
         if top is None:
             raise IndexError("Pop from empty stack")
 
-        # Increment version and move top pointer to previous node
         self._current_version += 1
         self._versions[self._current_version] = top.prev
+
+        # Track undo/redo
+        self._undo_stack.append(self._current_version)
+        self._redo_stack.clear()
 
         return top.value, self._current_version
 
     def peek(self, version=None):
-        """
-        Peek at the top value of the stack at a given version.
-        Returns None if the stack is empty.
-        """
-        if version is None:
-            version = self._current_version
-
-        top = self._versions[version]
+        version = self._current_version if version is None else version
+        top = self._versions.get(version)
         return None if top is None else top.value
 
     def current_version(self):
-        """
-        Returns the current version number.
-        """
         return self._current_version
-    
+
+    # -------------------
+    # Version Utilities
+    # -------------------
     def show_version(self, version):
-        """ Return the full stack at a given version as a list
-        (top of stack is last element in list)"""
-        
+        """Return stack as list for a given version"""
         node = self._versions.get(version)
         result = []
         while node:
             result.append(node.value)
             node = node.prev
         return result[::-1]
+
+    def all_versions(self):
+        """List all version numbers"""
+        return list(self._versions.keys())
+
+    def checkpoint(self, name):
+        """Assign a name to current version"""
+        self._checkpoints[name] = self._current_version
+
+    def jump_to_checkpoint(self, name):
+        """Set current version to named checkpoint"""
+        if name not in self._checkpoints:
+            raise KeyError(f"No checkpoint named '{name}'")
+        self._current_version = self._checkpoints[name]
+
+    # -------------------
+    # Undo / Redo
+    # -------------------
+    def undo(self):
+        if len(self._undo_stack) < 2:
+            raise IndexError("Nothing to undo")
+        last = self._undo_stack.pop()       # remove current
+        self._redo_stack.append(last)       # save for redo
+        self._current_version = self._undo_stack[-1]
+        return self._current_version
+
+    def redo(self):
+        if not self._redo_stack:
+            raise IndexError("Nothing to redo")
+        next_version = self._redo_stack.pop()
+        self._undo_stack.append(next_version)
+        self._current_version = next_version
+        return self._current_version
+
+    # -------------------
+    # Version Difference
+    # -------------------
+    def diff(self, v1, v2):
+        """Show elements added or removed between two versions"""
+        s1 = set(self.show_version(v1))
+        s2 = set(self.show_version(v2))
+        added = s2 - s1
+        removed = s1 - s2
+        return {"added": list(added), "removed": list(removed)}
+
+    # -------------------
+    # Visualization
+    # -------------------
+    def visualize(self, version=None):
+        version = self._current_version if version is None else version
+        stack_list = self.show_version(version)
+        print("Stack (bottom → top) [version {}]:".format(version))
+        print("---")
+        for val in stack_list:
+            print(val)
+        print("---")
