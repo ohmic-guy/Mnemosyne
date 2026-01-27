@@ -2,6 +2,32 @@
 
 from .node import Node
 
+class PersistentStack:
+    """
+    Simple immutable/persistent stack.
+    All operations return new stack instances.
+    """
+    def __init__(self, top=None):
+        self._top = top
+
+    def is_empty(self):
+        return self._top is None
+
+    def push(self, value):
+        new_node = Node(value, self._top)
+        return PersistentStack(new_node)
+
+    def pop(self):
+        if self.is_empty():
+            raise IndexError("pop from empty stack")
+        return self._top.value, PersistentStack(self._top.prev)
+
+    def peek(self):
+        if self.is_empty():
+            raise IndexError("peek from empty stack")
+        return self._top.value
+
+
 class TimeAwareStack:
     """
     Time-Aware Stack with full features:
