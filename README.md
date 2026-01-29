@@ -1,73 +1,91 @@
-# Mnemosyne: Persistent & Time-Aware Data Structures
+# 🧠 Mnemosyne
 
-A Python library for persistent and time-aware data structures. Mnemosyne provides:
-- **Persistent structures** (PersistentStack, PersistentQueue) with full immutability and structural sharing
-- **Time-aware structures** (TimeAwareStack) with versioning, checkpoints, and undo/redo capabilities
+**Persistent & Time-Aware Data Structures in Python**
 
-All data structures maintain immutability, allowing you to preserve and access previous states.
+Mnemosyne is an open-source Python library that implements persistent (immutable) and time-aware data structures.
+Every operation preserves history, enabling inspection, comparison, and navigation of past states without mutation.
 
-## Features
+The project is built incrementally with an emphasis on clarity, correctness, and structural sharing, inspired by functional data structure design.
 
-### Persistent Data Structures
-- **PersistentStack**: Immutable stack with structural sharing
-- **PersistentQueue**: Efficient immutable queue using two-stack implementation
-- All operations return new instances, preserving old versions
+## ✨ Key Concepts
+
+**Persistence:**
+Operations never overwrite data. Each change produces a new version while old versions remain accessible.
+
+**Time Awareness:**
+Explicit version tracking, checkpoints, and undo/redo allow controlled navigation through state history.
+
+**Structural Sharing:**
+New versions reuse unchanged parts of old structures for efficiency.
+
+## 📦 Implemented Data Structures
+
+### Persistent Structures
+
+- **PersistentStack**
+- **PersistentQueue**
+- **PersistentDeque** (Double-Ended Queue)
+
+All persistent structures:
+- Are immutable
+- Preserve all previous versions
+- Support historical inspection
 
 ### Time-Aware Structures
-- **Immutable Versions**: Every operation creates a new immutable version
-- **Version History**: Access and inspect any previous version
-- **Named Checkpoints**: Save important states with meaningful names
-- **Undo/Redo**: Navigate backward and forward through your operation history
-- **Version Visualization**: View all versions and their state at a glance
 
-## Installation
+- **TimeAwareStack**
+  - Version history
+  - Named checkpoints
+  - Undo / redo
+  - Version visualization and diffing
 
-Clone the repository and import the modules:
+## 🚀 Installation
+
+Currently distributed as source. Clone the repository and import the modules:
 
 ```python
-# For persistent structures
-from mnemosyne.stack import PersistentStack
-from mnemosyne.queue import PersistentQueue
-
-# For time-aware structures
 from mnemosyne.stack import TimeAwareStack
+from mnemosyne.queue import PersistentQueue
+from mnemosyne.deque import PersistentDeque
 ```
 
-## Quick Start
+## 🔧 Quick Start
+
+### Persistent Deque
+
+```python
+from mnemosyne.deque import PersistentDeque
+
+d = PersistentDeque()
+
+v1 = d.push_back(10)
+v2 = d.push_front(5)
+v3 = d.push_back(20)
+
+print(d.show_version(v3))   # [5, 10, 20]
+
+val, v4 = d.pop_front(v3)
+print(val)                  # 5
+print(d.show_version(v4))   # [10, 20]
+```
+
+All versions (v1, v2, v3) remain unchanged.
 
 ### Persistent Queue
 
 ```python
 from mnemosyne.queue import PersistentQueue
 
-# Create a new queue
-q0 = PersistentQueue()
-q1 = q0.enqueue(10)
-q2 = q1.enqueue(20)
-q3 = q2.enqueue(30)
+q = PersistentQueue()
 
-# Dequeue preserves old versions
-val, q4 = q3.dequeue()  # val = 10
+v1 = q.enqueue(10)
+v2 = q.enqueue(20)
+v3 = q.enqueue(30)
 
-# Old versions still work
-print(q1.peek())  # 10 - q1 is unchanged!
-```
+val, v4 = q.dequeue(v3)
 
-### Persistent Stack
-
-```python
-from mnemosyne.stack import PersistentStack
-
-# Create a new stack
-s0 = PersistentStack()
-s1 = s0.push(10)
-s2 = s1.push(20)
-
-# Pop returns value and new stack
-val, s3 = s2.pop()  # val = 20
-
-# Old versions remain intact
-print(s1.peek())  # 10
+print(val)                  # 10
+print(q.show_version(v2))   # [10, 20]
 ```
 
 ### Time-Aware Stack
@@ -75,187 +93,99 @@ print(s1.peek())  # 10
 ```python
 from mnemosyne.stack import TimeAwareStack
 
-# Create a new time-aware stack
 s = TimeAwareStack()
 
-# Push values and capture version IDs
 v1 = s.push(10)
 v2 = s.push(20)
 v3 = s.push(30)
 
-# Create a named checkpoint
 s.checkpoint("before_pop")
 
-# Pop a value
 val, v4 = s.pop(v3)
 
-# View all versions
-print(s.all_versions())  # [0, 1, 2, 3, 4]
+print(s.show_version(v2))   # [10, 20]
 
-# Show stack state at a specific version
-print(s.show_version(v2))  # [10, 20]
-
-# Jump back to a checkpoint
 s.jump_to_checkpoint("before_pop")
-
-# Undo and redo operations
 s.undo()
 s.redo()
 ```
 
-## API Reference
+## 🔍 Version Diffing
 
-### PersistentStack
-
-#### `push(value) -> PersistentStack`
-Returns a new stack with the value pushed on top.
+Compare changes between two versions:
 
 ```python
-s1 = s0.push(42)
+d.diff(v1, v3)
 ```
 
-#### `pop() -> tuple[any, PersistentStack]`
-Returns (value, new_stack) tuple.
+Returns a semantic diff:
 
 ```python
-val, s1 = s0.pop()
+{
+  "from_version": 1,
+  "to_version": 3,
+  "added": [...],
+  "removed": [...]
+}
 ```
 
-#### `peek() -> any`
-Returns the top value without modifying the stack.
+Useful for debugging, auditing, and state inspection.
 
-#### `is_empty() -> bool`
-Returns True if the stack is empty.
+## 🧠 Design Overview
 
-### PersistentQueue
+- Nodes are immutable and linked
+- Each operation creates a new version ID
+- Old versions are never modified or deleted
+- Deque is implemented using two persistent stacks
+- Time-aware structures maintain explicit version maps and history stacks
 
-#### `enqueue(value) -> PersistentQueue`
-Returns a new queue with the value added to the rear.
+This design aligns with principles from functional programming and persistent data structure research.
 
-```python
-q1 = q0.enqueue(42)
-```
-
-#### `dequeue() -> tuple[any, PersistentQueue]`
-Returns (value, new_queue) tuple.
-
-```python
-val, q1 = q0.dequeue()
-```
-
-#### `peek() -> any`
-Returns the front value without removing it.
-
-#### `is_empty() -> bool`
-Returns True if the queue is empty.
-
-### TimeAwareStack - Core Operations
-
-#### `push(value, version=None) -> int`
-Push a value onto the stack. Returns the new version ID.
-
-```python
-v = s.push(42)
-```
-
-#### `pop(version=None) -> tuple`
-Pop a value from the stack. Returns (value, new_version_id).
-
-```python
-val, v = s.pop()
-```
-
-#### `peek(version=None) -> any`
-Peek at the top value without removing it.
-
-```python
-top = s.peek()
-```
-
-### Version Management
-
-#### `current_version() -> int`
-Get the current version ID.
-
-#### `all_versions() -> list`
-Get a list of all version IDs.
-
-#### `show_version(version) -> list`
-Get the complete stack state as a list for a given version.
-
-```python
-stack_state = s.show_version(v1)
-```
-
-#### `checkpoint(name: str)`
-Create a named checkpoint at the current version.
-
-```python
-s.checkpoint("important_state")
-```
-
-#### `jump_to_checkpoint(name: str)`
-Jump to a previously saved checkpoint.
-
-```python
-s.jump_to_checkpoint("important_state")
-```
-
-### Undo/Redo
-
-#### `undo() -> int`
-Undo the last operation. Returns the new current version ID.
-
-#### `redo() -> int`
-Redo the last undone operation. Returns the new current version ID.
-
-## How It Works
-
-Mnemosyne uses a **linked-list node structure** to maintain immutable versions:
-
-- Each stack state is represented as a chain of `Node` objects
-- Every push/pop operation creates a new version ID
-- Version history is preserved, allowing non-destructive time travel
-- Checkpoints provide semantic bookmarks in your history
-
-## Extending to Other Data Structures
-
-The core version-tracking pattern works for queues, deques, trees, and more:
-- Define how a node/state references the previous state (or children) immutably.
-- Implement operations (enqueue, dequeue, insert, delete, etc.) so each returns a new top/root reference and version ID.
-- Reuse the existing bookkeeping: `self._versions`, `self._current_version`, `_undo_stack`, `_redo_stack`, and checkpoints.
-- Expose helpers like `show_version` tailored to your structure (e.g., breadth-first for trees).
-
-## Example Use Case
-
-Perfect for applications that need:
-- **Collaborative editing** with version tracking
-- **Undo/redo functionality** in data manipulation tools
-- **Debugging** by rewinding and replaying operations
-- **Time-series analysis** where you need snapshots at different points
-
-## File Structure
+## 📁 Project Structure
 
 ```
 mnemosyne/
-  __init.py__      # Package initialization
-  node.py          # Node class for linked-list structure
-  stack.py         # PersistentStack and TimeAwareStack implementations
-  queue.py         # PersistentQueue implementation
-example.py         # TimeAwareStack usage examples
-example_queue.py   # PersistentQueue usage examples
+│
+├── node.py        # Immutable node definition
+├── stack.py       # PersistentStack & TimeAwareStack
+├── queue.py       # PersistentQueue
+├── deque.py       # PersistentDeque
+├── __init__.py
+│
+example.py
+example_queue.py
+example_deque_diff.py
 ```
 
-## Running the Examples
+## 🎯 Use Cases
 
-```bash
-# Run time-aware stack example
-python3 example.py
+Mnemosyne is suitable for:
 
-# Run persistent queue example
-python3 example_queue.py
-```
+- Undo / redo systems
+- Time-travel debugging
+- Auditable data workflows
+- Educational exploration of persistence
+- Research and experimentation with immutable structures
 
-## Author Notes
+## 📌 Project Status
 
-Mnemosyne provides a clean, functional approach to stack operations with complete history preservation. Use it when you need to explore alternative paths through your data without losing the original path.
+**Current version:** v0.3.x
+
+- Actively developed
+- Built incrementally in public
+
+**Planned directions:**
+- Shared base abstractions
+- Positional and structural diffs
+- Persistent trees and graph structures
+
+## 📜 License
+
+This project is released under the MIT License.
+
+## ✍️ Author Note
+
+Mnemosyne is a learning-driven project focused on understanding state, time, and immutability at a deeper level.
+The goal is not speed, but correctness and clarity.
+
+---
