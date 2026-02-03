@@ -26,7 +26,7 @@ class PersistentLinkedList:
     def tail(self):
         if self.head is None:
             raise IndexError("List is empty")
-        return PersistentLinkedList(self.head.next, self.size - 1)
+        return PersistentLinkedList(self.head.prev, self.size - 1)
 
     def insert(self, index, value):
         if index < 0 or index > self.size:
@@ -38,7 +38,7 @@ class PersistentLinkedList:
         def clone(node, i):
             if i == 0:
                 return Node(value, node)
-            return Node(node.value, clone(node.next, i - 1))
+            return Node(node.value, clone(node.prev, i - 1))
 
         return PersistentLinkedList(
             clone(self.head, index),
@@ -54,8 +54,8 @@ class PersistentLinkedList:
 
         def clone(node, i):
             if i == 1:
-                return Node(node.value, node.next.next)
-            return Node(node.value, clone(node.next, i - 1))
+                return Node(node.value, node.prev.prev)
+            return Node(node.value, clone(node.prev, i - 1))
 
         return PersistentLinkedList(
             clone(self.head, index),
@@ -67,5 +67,5 @@ class PersistentLinkedList:
         curr = self.head
         while curr:
             out.append(curr.value)
-            curr = curr.next
+            curr = curr.prev
         return out
