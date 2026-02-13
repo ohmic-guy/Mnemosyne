@@ -1,91 +1,171 @@
 # Changelog
 
-All notable changes to Mnemosyne are documented in this file.
+All notable changes to **Mnemosyne** are documented in this file.
 
-The format follows semantic versioning and emphasizes clarity, correctness, and incremental progress.
+The project follows **Semantic Versioning** (`MAJOR.MINOR.PATCH`).
+While in the `0.x` series, APIs may evolve as the architecture matures.
+
+---
+
+## [0.4.0] - 2026-02-13
+
+### Added
+
+#### PersistentDeque
+
+* Fully persistent double-ended queue
+* Implemented using two persistent stacks (front/back model)
+* Structural sharing across all versions
+* Operations:
+
+  * `push_front`
+  * `push_back`
+  * `pop_front`
+  * `pop_back`
+* All operations return new version IDs
+* Complete historical version preservation
+
+#### Version Diffing
+
+* `diff(v1, v2)` for PersistentDeque
+* Structured semantic diff output
+
+  * Added elements
+  * Removed elements
+* Enables debugging, auditing, and state inspection
+* Foundation for future structural and positional diffing
+
+#### Examples
+
+* `example_deque_diff.py` demonstrating:
+
+  * Version creation
+  * State transitions
+  * Cross-version comparison
 
 ---
 
 ## [0.3.0] - 2026-01-30
 
 ### Added
-- **PersistentDeque**: Double-ended queue implementation
-  - Fully persistent with structural sharing
-  - Implemented using two persistent stacks (front and back)
-  - Core operations: `push_front`, `push_back`, `pop_front`, `pop_back`
-  - All operations return new version IDs
-  - Historical version preservation and inspection
-- **Version Diffing**: Semantic diff between any two versions
-  - `diff(v1, v2)` method for PersistentDeque
-  - Returns structured output showing added/removed elements
-  - Useful for debugging, auditing, and state inspection
-- Example code demonstrating deque and diffing (`example_deque_diff.py`)
 
-### Changed
-- Updated README with modern formatting and emoji section headers
-- Reorganized documentation to emphasize key concepts upfront
-- Added comprehensive Design Overview section
-- Included Project Status and roadmap
+#### PersistentDeque (Initial Release)
 
-### Notes
-- This release focuses on extending the persistent structure family
-- Version diffing capabilities demonstrate practical use of version history
-- API remains stable but subject to refinement in 0.x series
+* Double-ended immutable structure
+* Built from two persistent stacks
+* Amortized efficient operations
+* Version-aware design compatible with Mnemosyne philosophy
+
+### Documentation
+
+* Modernized README formatting
+* Emoji-based section headers
+* Design Overview section
+* Project Status and roadmap
+* Clear emphasis on structural sharing
 
 ---
 
 ## [0.2.0] - 2026-01-27
 
 ### Added
-- **PersistentStack**: Simple immutable stack implementation
-  - Fully persistent with structural sharing
-  - Core operations: `push`, `pop`, `peek`, `is_empty`
-  - All operations return new stack instances
-- **PersistentQueue**: Immutable queue using two-stack implementation
-  - Efficient amortized O(1) operations
-  - Maintains immutability across enqueue/dequeue
-  - Automatic rebalancing when front stack is empty
-  - Core operations: `enqueue`, `dequeue`, `peek`, `is_empty`
-- Example code for PersistentQueue (`example_queue.py`)
+
+#### PersistentStack
+
+* Immutable stack with structural sharing
+* Operations:
+
+  * `push`
+  * `pop`
+  * `peek`
+  * `is_empty`
+* All operations return new stack instances
+
+#### PersistentQueue
+
+* Immutable queue via two-stack implementation
+* Amortized O(1) enqueue/dequeue
+* Automatic rebalancing
+* Operations:
+
+  * `enqueue`
+  * `dequeue`
+  * `peek`
+  * `is_empty`
+
+#### Examples
+
+* `example_queue.py`
 
 ### Changed
-- Refactored `stack.py` to include both PersistentStack and TimeAwareStack
-- TimeAwareStack now coexists with simpler PersistentStack implementation
-- Improved structural sharing across persistent structures
+
+* Refactored `stack.py`:
+
+  * Coexistence of `PersistentStack` and `TimeAwareStack`
+* Improved internal structural sharing
+* Cleaner separation of responsibilities between stack variants
 
 ---
 
 ## [0.1.0] - 2026-01-26
 
-### Added
-- Initial public release of **Mnemosyne**
-- **TimeAwareStack**: Versioned stack with time-travel capabilities
-  - Immutable versioned operations: `push`, `pop`, `peek`
-  - Full access to historical versions via `show_version`
-  - Named checkpoints with `checkpoint` and `jump_to_checkpoint`
-  - Undo and redo support
-  - Version comparison utilities
-  - Stack state visualization
-- Immutable **Node** class for linked-list structure
-- MIT License
-- Comprehensive README documentation
-- Example code demonstrating time-aware operations (`example.py`)
+### Initial Release
 
-### Notes
-- Experimental release focused on correctness and clarity over performance
-- API is subject to change while the project is in 0.x versions
-- Foundation for additional persistent data structures
+#### TimeAwareStack
+
+* Versioned immutable stack
+* Time-travel capabilities:
+
+  * `push`
+  * `pop`
+  * `peek`
+* Historical inspection via `show_version`
+* Named checkpoints:
+
+  * `checkpoint`
+  * `jump_to_checkpoint`
+* Undo/redo support
+* Version comparison utilities
+* Stack visualization
+
+#### Core Architecture
+
+* Immutable `Node` class (linked-list backbone)
+* Structural sharing foundation
+* MIT License
+* Comprehensive README
+* `example.py` demonstrating time-aware operations
+
+### Philosophy
+
+* Correctness over performance
+* Clarity over abstraction
+* Explicit versioning as a first-class concept
 
 ---
 
 ## [Unreleased]
 
 ### Planned
-- Shared base abstractions for all persistent structures
-- Positional and structural diffs
-- Persistent trees (BST, AVL)
-- Persistent graph structures
-- Enhanced version graph visualization
-- Branching timelines for TimeAwareStack
-- Expanded test coverage and benchmarks
-- API refinements based on usage patterns
+
+#### Architecture
+
+* Shared base abstractions for persistent structures
+* Unified version graph model
+* Branching timelines for TimeAwareStack
+
+#### Data Structures
+
+* Persistent Binary Search Tree
+* Persistent AVL Tree
+* Persistent graph structures
+
+#### Tooling
+
+* Positional and structural diffing
+* Enhanced version graph visualization
+* Expanded test coverage
+* Benchmarks
+* API refinement based on real usage
+
+---

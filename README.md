@@ -1,47 +1,121 @@
-# 🧠 Mnemosyne
+# Mnemosyne
 
-**Persistent & Time-Aware Data Structures in Python**
+> **Persistent & Time-Aware Data Structures in Python**
 
-Mnemosyne is an open-source Python library that implements persistent (immutable) and time-aware data structures.
-Every operation preserves history, enabling inspection, comparison, and navigation of past states without mutation.
+Mnemosyne is an open-source Python library implementing **persistent (immutable)** and **time-aware** data structures.
 
-The project is built incrementally with an emphasis on clarity, correctness, and structural sharing, inspired by functional data structure design.
+Every operation produces a new version.
+No mutation. No overwritten history. Full state preservation.
 
-## ✨ Key Concepts
+The project is built incrementally with an emphasis on:
 
-**Persistence:**
-Operations never overwrite data. Each change produces a new version while old versions remain accessible.
+* Correctness over performance
+* Structural sharing over copying
+* Explicit versioning over implicit mutation
+* Clarity over abstraction
 
-**Time Awareness:**
-Explicit version tracking, checkpoints, and undo/redo allow controlled navigation through state history.
+Inspired by functional data structure design and research on persistence.
 
-**Structural Sharing:**
-New versions reuse unchanged parts of old structures for efficiency.
+---
 
-## 📦 Implemented Data Structures
+# Core Ideas
 
-### Persistent Structures
+## Persistence
 
-- **PersistentStack**
-- **PersistentQueue**
-- **PersistentDeque** (Double-Ended Queue)
+Operations never modify existing data.
+
+Each change:
+
+* Creates a new version
+* Preserves all previous versions
+* Reuses unchanged structure via structural sharing
+
+You can inspect *any past state* at any time.
+
+---
+
+## Time Awareness
+
+Some structures explicitly track history and navigation:
+
+* Version IDs
+* Named checkpoints
+* Undo / Redo
+* Version comparison
+* State visualization
+
+Time becomes a first-class concept.
+
+---
+
+## Structural Sharing
+
+New versions reuse unchanged nodes instead of copying entire structures.
+
+This keeps:
+
+* Memory usage efficient
+* Version creation fast
+* History scalable
+
+---
+
+# Implemented Structures
+
+## Persistent Structures
 
 All persistent structures:
-- Are immutable
-- Preserve all previous versions
-- Support historical inspection
 
-### Time-Aware Structures
+* Are immutable
+* Preserve historical versions
+* Support version inspection
 
-- **TimeAwareStack**
-  - Version history
-  - Named checkpoints
-  - Undo / redo
-  - Version visualization and diffing
+### • PersistentStack
 
-## 🚀 Installation
+Simple immutable stack.
 
-Currently distributed as source. Clone the repository and import the modules:
+### • PersistentQueue
+
+Two-stack implementation with amortized O(1) operations.
+
+### • PersistentDeque
+
+Double-ended queue implemented using two persistent stacks.
+
+Supports:
+
+* `push_front`
+* `push_back`
+* `pop_front`
+* `pop_back`
+* `diff(v1, v2)`
+
+---
+
+## Time-Aware Structures
+
+### • TimeAwareStack
+
+Adds explicit time navigation on top of persistence:
+
+* Version history tracking
+* Named checkpoints
+* Undo / Redo
+* Version comparison
+* State inspection
+
+---
+
+# Installation
+
+Currently distributed as source.
+
+```bash
+git clone https://github.com/ohmic-guy/Mnemosyne.git
+cd Mnemosyne
+```
+
+Import directly:
 
 ```python
 from mnemosyne.stack import TimeAwareStack
@@ -49,9 +123,11 @@ from mnemosyne.queue import PersistentQueue
 from mnemosyne.deque import PersistentDeque
 ```
 
-## 🔧 Quick Start
+---
 
-### Persistent Deque
+# Quick Start
+
+## Persistent Deque
 
 ```python
 from mnemosyne.deque import PersistentDeque
@@ -65,13 +141,16 @@ v3 = d.push_back(20)
 print(d.show_version(v3))   # [5, 10, 20]
 
 val, v4 = d.pop_front(v3)
+
 print(val)                  # 5
 print(d.show_version(v4))   # [10, 20]
 ```
 
-All versions (v1, v2, v3) remain unchanged.
+All previous versions (`v1`, `v2`, `v3`) remain unchanged.
 
-### Persistent Queue
+---
+
+## Persistent Queue
 
 ```python
 from mnemosyne.queue import PersistentQueue
@@ -88,7 +167,9 @@ print(val)                  # 10
 print(q.show_version(v2))   # [10, 20]
 ```
 
-### Time-Aware Stack
+---
+
+## Time-Aware Stack
 
 ```python
 from mnemosyne.stack import TimeAwareStack
@@ -110,15 +191,17 @@ s.undo()
 s.redo()
 ```
 
-## 🔍 Version Diffing
+---
 
-Compare changes between two versions:
+# Version Diffing
+
+Compare two versions:
 
 ```python
 d.diff(v1, v3)
 ```
 
-Returns a semantic diff:
+Returns:
 
 ```python
 {
@@ -129,24 +212,34 @@ Returns a semantic diff:
 }
 ```
 
-Useful for debugging, auditing, and state inspection.
+Useful for:
 
-## 🧠 Design Overview
+* Debugging
+* Auditing state changes
+* Educational inspection
+* Time-travel workflows
 
-- Nodes are immutable and linked
-- Each operation creates a new version ID
-- Old versions are never modified or deleted
-- Deque is implemented using two persistent stacks
-- Time-aware structures maintain explicit version maps and history stacks
+---
 
-This design aligns with principles from functional programming and persistent data structure research.
+# Design Overview
 
-## 📁 Project Structure
+* Nodes are immutable
+* Structures are linked
+* Each operation generates a new version ID
+* Old versions are never modified or deleted
+* Deque uses two persistent stacks
+* Time-aware structures maintain explicit version maps and history stacks
+
+The architecture prioritizes conceptual clarity over micro-optimization.
+
+---
+
+# Project Structure
 
 ```
 mnemosyne/
 │
-├── node.py        # Immutable node definition
+├── node.py        # Immutable node
 ├── stack.py       # PersistentStack & TimeAwareStack
 ├── queue.py       # PersistentQueue
 ├── deque.py       # PersistentDeque
@@ -157,35 +250,56 @@ example_queue.py
 example_deque_diff.py
 ```
 
-## 🎯 Use Cases
+---
 
-Mnemosyne is suitable for:
+# Use Cases
 
-- Undo / redo systems
-- Time-travel debugging
-- Auditable data workflows
-- Educational exploration of persistence
-- Research and experimentation with immutable structures
+Mnemosyne is ideal for:
 
-## 📌 Project Status
+* Undo / Redo systems
+* Time-travel debugging tools
+* Auditable workflows
+* Event-sourced systems
+* Educational exploration of immutability
+* Research on persistent structures
 
-**Current version:** v0.3.x
+---
 
-- Actively developed
-- Built incrementally in public
+# Project Status
 
-**Planned directions:**
-- Shared base abstractions
-- Positional and structural diffs
-- Persistent trees and graph structures
+**Current Version:** v0.4.x
+**Stability:** Experimental but stable within 0.x guarantees
 
-## 📜 License
+While in the `0.x` series:
 
-This project is released under the MIT License.
+* APIs may evolve
+* Internal architecture may refine
+* Focus remains on correctness and clarity
 
-## ✍️ Author Note
+---
 
-Mnemosyne is a learning-driven project focused on understanding state, time, and immutability at a deeper level.
-The goal is not speed, but correctness and clarity.
+# Roadmap
 
+* Shared base abstractions for persistent structures
+* Positional and structural diffing
+* Branching timelines
+* Persistent trees (BST, AVL)
+* Persistent graph structures
+* Version graph visualization
+* Expanded tests and benchmarks
+
+---
+
+# License
+
+MIT License.
+
+---
+
+# Author Note
+
+Mnemosyne is a learning-driven project exploring state, time, and immutability at a deeper level.
+
+The goal is not raw performance —
+but conceptual integrity, structural clarity, and architectural correctness.
 ---
