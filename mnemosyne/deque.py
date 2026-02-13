@@ -1,5 +1,3 @@
-# mnemosyne/deque.py
-
 from .stack import TimeAwareStack
 
 
@@ -19,11 +17,14 @@ class PersistentDeque:
         self._front = TimeAwareStack()
         self._back = TimeAwareStack()
 
-        # deque_version -> (front_version, back_version)
-        self._versions = {
-            0: (0, 0)
-        }
+        self._versions = {0: (0, 0)}
         self._current_version = 0
+
+    # -------------------
+    # Internal Utilities
+
+    def _is_stack_empty(self, stack, version):
+        return stack.peek(version) is None
 
     # -------------------
     # Push Operations
@@ -55,11 +56,9 @@ class PersistentDeque:
         version = self._current_version if version is None else version
         front_v, back_v = self._versions[version]
 
-        val = self._front.peek(front_v)
-        if val is not None:
-            return val
+        if not self._is_stack_empty(self._front, front_v):
+            return self._front.peek(front_v)
 
-        # front empty → peek from bottom of back
         back_list = self._back.show_version(back_v)
         return back_list[0] if back_list else None
 
@@ -67,11 +66,9 @@ class PersistentDeque:
         version = self._current_version if version is None else version
         front_v, back_v = self._versions[version]
 
-        val = self._back.peek(back_v)
-        if val is not None:
-            return val
+        if not self._is_stack_empty(self._back, back_v):
+            return self._back.peek(back_v)
 
-        # back empty → peek from bottom of front
         front_list = self._front.show_version(front_v)
         return front_list[0] if front_list else None
 
@@ -82,14 +79,15 @@ class PersistentDeque:
         version = self._current_version if version is None else version
         front_v, back_v = self._versions[version]
 
-        if self._front.peek(front_v) is not None:
+        # Fast path
+        if not self._is_stack_empty(self._front, front_v):
             value, new_front_v = self._front.pop(front_v)
 
             self._current_version += 1
             self._versions[self._current_version] = (new_front_v, back_v)
             return value, self._current_version
 
-        # Rebalance from back stack
+        # Rebalance from back
         back_list = self._back.show_version(back_v)
         if not back_list:
             raise IndexError("Pop from empty deque")
@@ -103,20 +101,22 @@ class PersistentDeque:
 
         self._current_version += 1
         self._versions[self._current_version] = (new_front_v, 0)
+
         return value, self._current_version
 
     def pop_back(self, version=None):
         version = self._current_version if version is None else version
         front_v, back_v = self._versions[version]
 
-        if self._back.peek(back_v) is not None:
+        # Fast path
+        if not self._is_stack_empty(self._back, back_v):
             value, new_back_v = self._back.pop(back_v)
 
             self._current_version += 1
             self._versions[self._current_version] = (front_v, new_back_v)
             return value, self._current_version
 
-        # Rebalance from front stack
+        # Rebalance from front
         front_list = self._front.show_version(front_v)
         if not front_list:
             raise IndexError("Pop from empty deque")
@@ -130,6 +130,7 @@ class PersistentDeque:
 
         self._current_version += 1
         self._versions[self._current_version] = (0, new_back_v)
+
         return value, self._current_version
 
     # -------------------
@@ -146,13 +147,12 @@ class PersistentDeque:
 
     def current_version(self):
         return self._current_version
-    
-        # -------------------
+
+    # -------------------
     # Version Difference
 
     def diff(self, v1, v2):
         """
-        Show elements added or removed between two deque versions.
         Order-independent semantic diff.
         """
         d1 = self.show_version(v1)
@@ -161,12 +161,9 @@ class PersistentDeque:
         s1 = set(d1)
         s2 = set(d2)
 
-        added = list(s2 - s1)
-        removed = list(s1 - s2)
-
         return {
             "from_version": v1,
             "to_version": v2,
-            "added": added,
-            "removed": removed
+            "added": list(s2 - s1),
+            "removed": list(s1 - s2),
         }
