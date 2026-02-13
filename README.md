@@ -1,4 +1,4 @@
-# 🧠 Mnemosyne
+# Mnemosyne
 
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
@@ -14,9 +14,9 @@ No mutation. No overwritten history. Full state preservation.
 
 ---
 
-## ✨ What It Provides
+## What It Provides
 
-### 🧩 Core Foundation
+### Core Foundation
 
 * `Node` — Immutable linked-list node
 * Linked structural model enabling structural sharing
@@ -25,7 +25,7 @@ All higher-level structures are built on this persistent linked foundation.
 
 ---
 
-### 🔁 Persistent Structures
+### Persistent Structures
 
 * `PersistentStack`
 * `PersistentQueue`
@@ -39,7 +39,7 @@ All structures:
 
 ---
 
-### ⏳ Time-Aware Structures
+### Time-Aware Structures
 
 * `TimeAwareStack`
 
@@ -50,7 +50,7 @@ All structures:
 
 ---
 
-## 🚀 Example
+## Example
 
 ```python
 from mnemosyne.deque import PersistentDeque
@@ -67,7 +67,7 @@ All previous versions remain accessible.
 
 ---
 
-## 🧠 Why Mnemosyne?
+## Why Mnemosyne?
 
 * Explore immutable design patterns
 * Build undo/redo systems
@@ -77,14 +77,14 @@ All previous versions remain accessible.
 
 ---
 
-## 📌 Status
+## Status
 
 Currently in the **0.x experimental phase**.
 APIs may evolve as the architecture matures.
 
 ---
 
-## 📜 License
+## License
 
 MIT License
 
