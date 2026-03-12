@@ -7,6 +7,64 @@ While in the `0.x` series, APIs may evolve as the architecture matures.
 
 ---
 
+## [0.5.0] - 2026-03-13
+
+### Added
+
+#### New Data Structures
+
+**PersistentDoublyLinkedList**
+* Bidirectional linked list enabling efficient front/back operations
+* Operations:
+  * `append` — Add element at end (O(1))
+  * `prepend` — Add element at start (O(1))
+  * `pop_front` — Remove from start (O(1))
+  * `pop_back` — Remove from end (O(1))
+  * `peek_front` / `peek_back` — View without removing
+  * `reverse` — Create reversed copy (O(n))
+* Full version preservation and structural sharing
+
+**PersistentSet**
+* Hash-based immutable set with set algebra
+* Operations:
+  * `add`, `remove`, `contains` — Core membership
+  * `union` — Combine both sets
+  * `intersection` — Common elements only
+  * `difference` — Elements in first set only
+* 16-bucket hash table with collision chaining via linked lists
+* Full version preservation
+
+**PersistentCounter**
+* Immutable frequency counter (multiset)
+* Operations:
+  * `increment(item, amount)` — Increase frequency
+  * `decrement(item, amount)` — Decrease frequency (validates count >= amount)
+  * `get_count(item)` — Query frequency
+  * `total()` — Sum of all counts
+  * `most_common(n)` / `least_common(n)` — Frequency analysis
+  * `add(other)` / `subtract(other)` — Arithmetic with operators
+* Full version preservation
+* Input validation on all operations
+
+#### Examples
+
+* `example_doublylinkedlist.py` — Bidirectional list operations
+* `example_set.py` — Set algebra and membership testing
+* `example_counter.py` — Frequency counting and analysis
+
+#### Test Coverage
+
+* 42 new tests across 3 test classes
+* Total test suite: 108 comprehensive tests
+* 100% pass rate
+
+### Changed
+
+* Version updated: 0.4.0 → 0.5.0
+* `__init__.py` exports expanded from 7 to 10 data structures
+
+---
+
 ## [0.4.0] - 2026-02-13
 
 ### Added

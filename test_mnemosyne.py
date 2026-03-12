@@ -16,6 +16,9 @@ from mnemosyne.stack import PersistentStack, TimeAwareStack
 from mnemosyne.queue import PersistentQueue
 from mnemosyne.deque import PersistentDeque
 from mnemosyne.linkedlist import PersistentLinkedList
+from mnemosyne.doublylinkedlist import PersistentDoublyLinkedList
+from mnemosyne.set import PersistentSet
+from mnemosyne.counter import PersistentCounter
 from mnemosyne.node import SinglyNode, DoublyNode
 
 
@@ -593,6 +596,359 @@ class TestPersistentDeque:
         d = PersistentDeque()
         d.push_back(10)
         assert "PersistentDeque" in repr(d)
+
+
+class TestPersistentDoublyLinkedList:
+    """Tests for PersistentDoublyLinkedList."""
+
+    def test_empty_list(self):
+        """A new list is empty."""
+        lst = PersistentDoublyLinkedList()
+        assert lst.is_empty()
+        assert len(lst) == 0
+
+    def test_append_single_element(self):
+        """Appending creates non-empty list."""
+        lst = PersistentDoublyLinkedList()
+        lst2 = lst.append(10)
+        assert not lst2.is_empty()
+        assert lst2.peek_back() == 10
+
+    def test_append_multiple(self):
+        """Appending multiple elements."""
+        lst = PersistentDoublyLinkedList()
+        lst = lst.append(10).append(20).append(30)
+
+        assert lst.to_list() == [10, 20, 30]
+        assert len(lst) == 3
+
+    def test_prepend_single_element(self):
+        """Prepending creates non-empty list."""
+        lst = PersistentDoublyLinkedList()
+        lst2 = lst.prepend(10)
+        assert not lst2.is_empty()
+        assert lst2.peek_front() == 10
+
+    def test_prepend_multiple(self):
+        """Prepending multiple elements."""
+        lst = PersistentDoublyLinkedList()
+        lst = lst.prepend(10).prepend(20).prepend(30)
+
+        assert lst.to_list() == [30, 20, 10]
+        assert len(lst) == 3
+
+    def test_mixed_append_prepend(self):
+        """Mixed append and prepend operations."""
+        lst = PersistentDoublyLinkedList()
+        lst = lst.append(10)      # [10]
+        lst = lst.prepend(5)      # [5, 10]
+        lst = lst.append(20)      # [5, 10, 20]
+        lst = lst.prepend(1)      # [1, 5, 10, 20]
+
+        assert lst.to_list() == [1, 5, 10, 20]
+
+    def test_pop_front(self):
+        """Pop from front."""
+        lst = PersistentDoublyLinkedList().append(10).append(20).append(30)
+        val, lst2 = lst.pop_front()
+
+        assert val == 10
+        assert lst2.to_list() == [20, 30]
+
+    def test_pop_back(self):
+        """Pop from back."""
+        lst = PersistentDoublyLinkedList().append(10).append(20).append(30)
+        val, lst2 = lst.pop_back()
+
+        assert val == 30
+        assert lst2.to_list() == [10, 20]
+
+    def test_pop_front_empty_raises_error(self):
+        """Popping from empty raises IndexError."""
+        lst = PersistentDoublyLinkedList()
+        with pytest.raises(IndexError):
+            lst.pop_front()
+
+    def test_pop_back_empty_raises_error(self):
+        """Popping from empty raises IndexError."""
+        lst = PersistentDoublyLinkedList()
+        with pytest.raises(IndexError):
+            lst.pop_back()
+
+    def test_peek_front_and_back(self):
+        """Peeking from front and back."""
+        lst = PersistentDoublyLinkedList().append(10).append(20).append(30)
+        assert lst.peek_front() == 10
+        assert lst.peek_back() == 30
+
+    def test_reverse(self):
+        """Reversing the list."""
+        lst = PersistentDoublyLinkedList().append(10).append(20).append(30)
+        lst2 = lst.reverse()
+
+        assert lst2.to_list() == [30, 20, 10]
+        assert lst.to_list() == [10, 20, 30]  # Original unchanged
+
+    def test_doubly_linked_list_repr(self):
+        """List has a string representation."""
+        lst = PersistentDoublyLinkedList().append(10).append(20)
+        assert "PersistentDoublyLinkedList" in repr(lst)
+
+
+# ============================================================================
+# PERSISTENT SET TESTS
+# ============================================================================
+
+
+class TestPersistentSet:
+    """Tests for PersistentSet."""
+
+    def test_empty_set(self):
+        """A new set is empty."""
+        s = PersistentSet()
+        assert s.is_empty()
+        assert len(s) == 0
+
+    def test_add_single_element(self):
+        """Adding one element."""
+        s = PersistentSet()
+        s2 = s.add(10)
+        assert not s2.is_empty()
+        assert s2.contains(10)
+
+    def test_add_multiple_elements(self):
+        """Adding multiple elements."""
+        s = PersistentSet()
+        s = s.add(10).add(20).add(30)
+
+        assert len(s) == 3
+        assert 10 in s
+        assert 20 in s
+        assert 30 in s
+
+    def test_add_duplicate_ignored(self):
+        """Adding duplicate doesn't change set."""
+        s = PersistentSet()
+        s = s.add(10)
+        s2 = s.add(10)
+
+        assert s == s2
+        assert len(s) == 1
+
+    def test_remove_element(self):
+        """Removing an element."""
+        s = PersistentSet().add(10).add(20).add(30)
+        s2 = s.remove(20)
+
+        assert len(s2) == 2
+        assert 10 in s2
+        assert 20 not in s2
+        assert 30 in s2
+
+    def test_remove_nonexistent_raises_error(self):
+        """Removing nonexistent element raises KeyError."""
+        s = PersistentSet().add(10)
+        with pytest.raises(KeyError):
+            s.remove(20)
+
+    def test_set_union(self):
+        """Union of two sets."""
+        s1 = PersistentSet().add(10).add(20)
+        s2 = PersistentSet().add(20).add(30)
+        s3 = s1.union(s2)
+
+        assert len(s3) == 3
+        assert s3.to_set() == {10, 20, 30}
+
+    def test_set_intersection(self):
+        """Intersection of two sets."""
+        s1 = PersistentSet().add(10).add(20).add(30)
+        s2 = PersistentSet().add(20).add(30).add(40)
+        s3 = s1.intersection(s2)
+
+        assert len(s3) == 2
+        assert s3.to_set() == {20, 30}
+
+    def test_set_difference(self):
+        """Difference of two sets."""
+        s1 = PersistentSet().add(10).add(20).add(30)
+        s2 = PersistentSet().add(20).add(40)
+        s3 = s1.difference(s2)
+
+        assert len(s3) == 2
+        assert s3.to_set() == {10, 30}
+
+    def test_set_equality(self):
+        """Set equality comparison."""
+        s1 = PersistentSet().add(10).add(20)
+        s2 = PersistentSet().add(20).add(10)
+        s3 = PersistentSet().add(10)
+
+        assert s1 == s2
+        assert s1 != s3
+
+    def test_set_repr(self):
+        """Set has a string representation."""
+        s = PersistentSet().add(10).add(20)
+        assert "PersistentSet" in repr(s)
+
+
+# ============================================================================
+# PERSISTENT COUNTER TESTS
+# ============================================================================
+
+
+class TestPersistentCounter:
+    """Tests for PersistentCounter."""
+
+    def test_empty_counter(self):
+        """A new counter is empty."""
+        c = PersistentCounter()
+        assert c.is_empty()
+        assert len(c) == 0
+        assert c.total() == 0
+
+    def test_increment_single(self):
+        """Incrementing a value."""
+        c = PersistentCounter()
+        c2 = c.increment("a")
+
+        assert c2.get_count("a") == 1
+        assert c2.total() == 1
+
+    def test_increment_multiple(self):
+        """Incrementing multiple times."""
+        c = PersistentCounter()
+        c = c.increment("a").increment("a").increment("b")
+
+        assert c.get_count("a") == 2
+        assert c.get_count("b") == 1
+        assert c.total() == 3
+
+    def test_increment_by_amount(self):
+        """Incrementing by custom amount."""
+        c = PersistentCounter()
+        c = c.increment("a", 5)
+
+        assert c.get_count("a") == 5
+        assert c.total() == 5
+
+    def test_increment_invalid_amount_raises_error(self):
+        """Incrementing by non-positive amount raises ValueError."""
+        c = PersistentCounter()
+        with pytest.raises(ValueError):
+            c.increment("a", 0)
+        with pytest.raises(ValueError):
+            c.increment("a", -1)
+
+    def test_decrement_single(self):
+        """Decrementing a value."""
+        c = PersistentCounter().increment("a", 3)
+        old_count, c2 = c.decrement("a")
+
+        assert old_count == 3
+        assert c2.get_count("a") == 2
+        assert c2.total() == 2
+
+    def test_decrement_removes_zero_count(self):
+        """Decrementing to zero removes the value."""
+        c = PersistentCounter().increment("a")
+        old_count, c2 = c.decrement("a")
+
+        assert old_count == 1
+        assert c2.get_count("a") == 0
+        assert len(c2) == 0
+
+    def test_decrement_nonexistent_raises_error(self):
+        """Decrementing nonexistent value raises KeyError."""
+        c = PersistentCounter()
+        with pytest.raises(KeyError):
+            c.decrement("a")
+
+    def test_decrement_over_count_raises_error(self):
+        """Decrementing more than available raises error."""
+        c = PersistentCounter().increment("a", 2)
+        with pytest.raises(ValueError):
+            c.decrement("a", 3)
+
+    def test_most_common(self):
+        """Getting most common elements."""
+        c = PersistentCounter()
+        c = c.increment("a", 5).increment("b", 3).increment("c", 1)
+        most = c.most_common()
+
+        assert most[0][0] == "a"
+        assert most[0][1] == 5
+        assert most[1][0] == "b"
+
+    def test_most_common_limited(self):
+        """Getting N most common elements."""
+        c = PersistentCounter()
+        c = c.increment("a", 5).increment("b", 3).increment("c", 1)
+        most = c.most_common(2)
+
+        assert len(most) == 2
+        assert most[0][0] == "a"
+        assert most[1][0] == "b"
+
+    def test_least_common(self):
+        """Getting least common elements."""
+        c = PersistentCounter()
+        c = c.increment("a", 5).increment("b", 3).increment("c", 1)
+        least = c.least_common()
+
+        assert least[0][0] == "c"
+        assert least[-1][0] == "a"
+
+    def test_counter_add(self):
+        """Adding two counters."""
+        c1 = PersistentCounter().increment("a", 2).increment("b", 1)
+        c2 = PersistentCounter().increment("a", 1).increment("c", 3)
+        c3 = c1.add(c2)
+
+        assert c3.get_count("a") == 3
+        assert c3.get_count("b") == 1
+        assert c3.get_count("c") == 3
+
+    def test_counter_subtract(self):
+        """Subtracting two counters."""
+        c1 = PersistentCounter().increment("a", 5).increment("b", 3)
+        c2 = PersistentCounter().increment("a", 2).increment("b", 3)
+        c3 = c1.subtract(c2)
+
+        assert c3.get_count("a") == 3
+        assert c3.get_count("b") == 0
+        assert len(c3) == 1
+
+    def test_counter_add_operator(self):
+        """Using + operator for addition."""
+        c1 = PersistentCounter().increment("a", 2)
+        c2 = PersistentCounter().increment("a", 1)
+        c3 = c1 + c2
+
+        assert c3.get_count("a") == 3
+
+    def test_counter_subtract_operator(self):
+        """Using - operator for subtraction."""
+        c1 = PersistentCounter().increment("a", 5)
+        c2 = PersistentCounter().increment("a", 2)
+        c3 = c1 - c2
+
+        assert c3.get_count("a") == 3
+
+    def test_counter_equality(self):
+        """Counter equality comparison."""
+        c1 = PersistentCounter().increment("a", 2).increment("b", 1)
+        c2 = PersistentCounter().increment("b", 1).increment("a", 2)
+        c3 = PersistentCounter().increment("a", 2)
+
+        assert c1 == c2
+        assert c1 != c3
+
+    def test_counter_repr(self):
+        """Counter has a string representation."""
+        c = PersistentCounter().increment("a", 2)
+        assert "PersistentCounter" in repr(c)
 
 
 # ============================================================================

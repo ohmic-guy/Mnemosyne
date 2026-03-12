@@ -9,6 +9,9 @@ Usage:
     from mnemosyne.queue import PersistentQueue
     from mnemosyne.deque import PersistentDeque
     from mnemosyne.linkedlist import PersistentLinkedList
+    from mnemosyne.doublylinkedlist import PersistentDoublyLinkedList
+    from mnemosyne.set import PersistentSet
+    from mnemosyne.counter import PersistentCounter
     from mnemosyne.node import SinglyNode, DoublyNode
 
 Core Concept:
@@ -17,7 +20,7 @@ Core Concept:
     Historical versions remain accessible for undo/redo, diffing, and auditing.
 """
 
-__version__ = "0.4.0"
+__version__ = "0.5.0"
 __author__ = "Mnemosyne Contributors"
 
 from .node import SinglyNode, DoublyNode
@@ -25,6 +28,9 @@ from .stack import PersistentStack, TimeAwareStack
 from .queue import PersistentQueue
 from .deque import PersistentDeque
 from .linkedlist import PersistentLinkedList
+from .doublylinkedlist import PersistentDoublyLinkedList
+from .set import PersistentSet
+from .counter import PersistentCounter
 
 __all__ = [
     "SinglyNode",
@@ -34,4 +40,7 @@ __all__ = [
     "PersistentQueue",
     "PersistentDeque",
     "PersistentLinkedList",
+    "PersistentDoublyLinkedList",
+    "PersistentSet",
+    "PersistentCounter",
 ]
