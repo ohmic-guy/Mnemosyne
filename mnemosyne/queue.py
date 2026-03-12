@@ -1,3 +1,11 @@
+"""
+Persistent queue implementation using structural sharing.
+
+A queue is a FIFO (First-In-First-Out) data structure.
+This implementation uses the two-stack model for efficient persistent queues.
+"""
+
+from typing import Any, List, Optional, Tuple
 from .stack import PersistentStack
 
 
@@ -5,33 +13,72 @@ class PersistentQueue:
     """
     Persistent Queue implemented using two persistent stacks.
 
-    _front: stack for dequeue operations
-    _rear:  stack for enqueue operations
+    Architecture:
+        _front: Stack for dequeue operations (LIFO, represents queue front)
+        _rear: Stack for enqueue operations (LIFO, represents queue rear)
 
-    When _front is empty, we rebalance by reversing _rear into _front.
+    When _front is empty, rebalance by reversing _rear into _front.
+
+    Operations:
+        - enqueue: O(1)
+        - dequeue: O(1) amortized
+        - peek: O(1) amortized
+
+    Example:
+        q = PersistentQueue()
+        q = q.enqueue(10)  # [10]
+        q = q.enqueue(20)  # [10, 20]
+        val, q = q.dequeue()  # val=10, q=[20]
     """
 
-    def __init__(self, front=None, rear=None):
+    __slots__ = ("_front", "_rear")
+
+    def __init__(
+        self,
+        front: Optional[PersistentStack] = None,
+        rear: Optional[PersistentStack] = None,
+    ) -> None:
+        """
+        Initialize a persistent queue.
+
+        Args:
+            front: The front stack (internal use)
+            rear: The rear stack (internal use)
+        """
         self._front = front if front is not None else PersistentStack()
         self._rear = rear if rear is not None else PersistentStack()
 
     # -------------------
     # Core Operations
 
-    def is_empty(self):
+    def is_empty(self) -> bool:
+        """Check if the queue is empty."""
         return self._front.is_empty() and self._rear.is_empty()
 
-    def enqueue(self, value):
+    def enqueue(self, value: Any) -> "PersistentQueue":
         """
-        Add element to the queue.
-        O(1)
+        Add element to the rear of the queue (O(1)).
+
+        Args:
+            value: The value to enqueue
+
+        Returns:
+            A new PersistentQueue with the value added
         """
         return PersistentQueue(self._front, self._rear.push(value))
 
-    def dequeue(self):
+    def dequeue(self) -> Tuple[Any, "PersistentQueue"]:
         """
-        Remove element from queue.
-        Amortized O(1)
+        Remove element from the front of the queue (O(1) amortized).
+
+        Args:
+            None
+
+        Returns:
+            Tuple of (value, new_queue)
+
+        Raises:
+            IndexError: If queue is empty
         """
         if self.is_empty():
             raise IndexError("dequeue from empty queue")
@@ -40,7 +87,7 @@ class PersistentQueue:
         rear = self._rear
 
         if front.is_empty():
-            # Rebalance first
+            # Rebalance: move all from rear to front
             rebalanced = self._rebalance()
             front = rebalanced._front
             rear = rebalanced._rear
@@ -48,9 +95,18 @@ class PersistentQueue:
         value, new_front = front.pop()
         return value, PersistentQueue(new_front, rear)
 
-    def peek(self):
+    def peek(self) -> Any:
         """
-        View front element without removing it.
+        View the front element without removing it.
+
+        Args:
+            None
+
+        Returns:
+            The value at the front of the queue
+
+        Raises:
+            IndexError: If queue is empty
         """
         if self.is_empty():
             raise IndexError("peek from empty queue")
@@ -65,10 +121,14 @@ class PersistentQueue:
     # -------------------
     # Internal Helper
 
-    def _rebalance(self):
+    def _rebalance(self) -> "PersistentQueue":
         """
         Move all elements from rear to front (reversed order).
+
         Cost: O(n) but amortized O(1) across operations.
+
+        Returns:
+            A new balanced queue
         """
         front = self._front
         rear = self._rear
@@ -82,30 +142,34 @@ class PersistentQueue:
     # -------------------
     # Utility
 
-    def to_list(self):
+    def to_list(self) -> List[Any]:
         """
         Return queue as a list (front → rear).
-        Useful for debugging.
+
+        Useful for debugging and verification.
+
+        Returns:
+            List representation of the queue
         """
-        # Get front elements (already in correct order)
-        front_list = self._front.show_version(0) if False else None
-        # We can't access internals of stack easily,
-        # so rebuild manually
+        result: List[Any] = []
 
-        result = []
-
-        # Collect front (bottom → top)
+        # Collect front stack (from top going down, which is reverse of queue order)
         node = self._front._top
-        temp = []
+        front_reversed: List[Any] = []
         while node:
-            temp.append(node.value)
+            front_reversed.append(node.value)
             node = node.next
-        result.extend(temp[::-1])
+        # Reverse to get front in correct order
+        result.extend(front_reversed[::-1])
 
-        # Collect rear (top → bottom, but must append in correct order)
+        # Collect rear stack (from top going down, which is reverse of enqueue order)
         node = self._rear._top
         while node:
             result.append(node.value)
             node = node.next
 
         return result
+
+    def __repr__(self) -> str:
+        """Return a string representation of this queue."""
+        return f"PersistentQueue({self.to_list()!r})"
