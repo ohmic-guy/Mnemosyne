@@ -40,7 +40,7 @@ class SinglyNode:
         Structural sharing allows multiple data structures to reference the same nodes.
     """
 
-    __slots__ = ("value", "next")
+    __slots__ = ("next", "value")
 
     def __init__(self, value: Any, next: Optional["SinglyNode"] = None) -> None:
         """
@@ -76,7 +76,7 @@ class DoublyNode:
         Structural sharing allows multiple data structures to reference the same nodes.
     """
 
-    __slots__ = ("value", "prev", "next")
+    __slots__ = ("next", "prev", "value")
 
     def __init__(
         self,

@@ -19,7 +19,8 @@ A doubly-linked list allows efficient operations from both ends.
 This persistent version preserves all historical versions through structural sharing.
 """
 
-from typing import Any, List, Optional, Tuple
+from typing import Any
+
 from .node import DoublyNode
 
 
@@ -48,12 +49,12 @@ class PersistentDoublyLinkedList:
         val, v4 = lst.pop_back(v3)  # val=20, [5, 10]
     """
 
-    __slots__ = ("head", "tail", "size")
+    __slots__ = ("head", "size", "tail")
 
     def __init__(
         self,
-        head: Optional[DoublyNode] = None,
-        tail: Optional[DoublyNode] = None,
+        head: DoublyNode | None = None,
+        tail: DoublyNode | None = None,
         size: int = 0,
     ) -> None:
         """
@@ -101,14 +102,14 @@ class PersistentDoublyLinkedList:
             raise IndexError("List is empty")
         return self.tail.value
 
-    def to_list(self) -> List[Any]:
+    def to_list(self) -> list[Any]:
         """
         Convert the persistent list to a Python list.
 
         Returns:
             A list of all values in order
         """
-        result: List[Any] = []
+        result: list[Any] = []
         current = self.head
         while current:
             result.append(current.value)
@@ -150,7 +151,7 @@ class PersistentDoublyLinkedList:
         new_head = self.head if self.size > 0 else new_tail
         return PersistentDoublyLinkedList(new_head, new_tail, self.size + 1)
 
-    def pop_front(self) -> Tuple[Any, "PersistentDoublyLinkedList"]:
+    def pop_front(self) -> tuple[Any, "PersistentDoublyLinkedList"]:
         """
         Remove the first element (O(1)).
 
@@ -171,7 +172,7 @@ class PersistentDoublyLinkedList:
 
         return value, PersistentDoublyLinkedList(new_head, new_tail, self.size - 1)
 
-    def pop_back(self) -> Tuple[Any, "PersistentDoublyLinkedList"]:
+    def pop_back(self) -> tuple[Any, "PersistentDoublyLinkedList"]:
         """
         Remove the last element (O(1)).
 

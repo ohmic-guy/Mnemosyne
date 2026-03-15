@@ -19,7 +19,8 @@ A linked list is a linear data structure accessed through pointers.
 Persistent linked lists preserve all historical versions through structural sharing.
 """
 
-from typing import Any, List, Optional
+from typing import Any
+
 from .node import SinglyNode
 
 
@@ -49,7 +50,7 @@ class PersistentLinkedList:
 
     __slots__ = ("head", "size")
 
-    def __init__(self, head: Optional[SinglyNode] = None, size: int = 0) -> None:
+    def __init__(self, head: SinglyNode | None = None, size: int = 0) -> None:
         """
         Initialize a persistent linked list.
 
@@ -85,14 +86,14 @@ class PersistentLinkedList:
             raise IndexError("List is empty")
         return self.head.value
 
-    def to_list(self) -> List[Any]:
+    def to_list(self) -> list[Any]:
         """
         Convert the persistent list to a Python list.
 
         Returns:
             A list of all values in order
         """
-        result: List[Any] = []
+        result: list[Any] = []
         current = self.head
         while current:
             result.append(current.value)
@@ -158,7 +159,7 @@ class PersistentLinkedList:
         if index == 0:
             return self.prepend(value)
 
-        def clone(node: Optional[SinglyNode], i: int) -> SinglyNode:
+        def clone(node: SinglyNode | None, i: int) -> SinglyNode:
             """Recursively clone nodes until insertion point."""
             if i == 0:
                 return SinglyNode(value, node)
@@ -190,7 +191,7 @@ class PersistentLinkedList:
         if index == 0:
             return self.tail()
 
-        def clone(node: Optional[SinglyNode], i: int) -> SinglyNode:
+        def clone(node: SinglyNode | None, i: int) -> SinglyNode:
             """Recursively clone nodes until removal point."""
             if i == 1:
                 # Skip the removed node

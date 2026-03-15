@@ -12,15 +12,15 @@ Tests cover:
 """
 
 import pytest
-from mnemosyne.stack import PersistentStack, TimeAwareStack
-from mnemosyne.queue import PersistentQueue
-from mnemosyne.deque import PersistentDeque
-from mnemosyne.linkedlist import PersistentLinkedList
-from mnemosyne.doublylinkedlist import PersistentDoublyLinkedList
-from mnemosyne.set import PersistentSet
-from mnemosyne.counter import PersistentCounter
-from mnemosyne.node import SinglyNode, DoublyNode
 
+from mnemosyne.counter import PersistentCounter
+from mnemosyne.deque import PersistentDeque
+from mnemosyne.doublylinkedlist import PersistentDoublyLinkedList
+from mnemosyne.linkedlist import PersistentLinkedList
+from mnemosyne.node import DoublyNode, SinglyNode
+from mnemosyne.queue import PersistentQueue
+from mnemosyne.set import PersistentSet
+from mnemosyne.stack import PersistentStack, TimeAwareStack
 
 # ============================================================================
 # SINGLY NODE TESTS
@@ -111,7 +111,7 @@ class TestPersistentStack:
     def test_pop_multiple_elements(self):
         """Popping from stack with multiple elements."""
         stack = PersistentStack().push(10).push(20).push(30)
-        
+
         val1, s1 = stack.pop()
         assert val1 == 30
         assert s1.peek() == 20
@@ -175,7 +175,7 @@ class TestTimeAwareStack:
         tas.push(10)
         tas.push(20)
         tas.push(30)
-        
+
         val, v4 = tas.pop()
         assert val == 30
         assert tas.show_version(v4) == [10, 20]
@@ -211,7 +211,7 @@ class TestTimeAwareStack:
         """Creating a duplicate checkpoint raises ValueError."""
         tas = TimeAwareStack()
         tas.checkpoint("saved")
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="already exists"):
             tas.checkpoint("saved")
 
     def test_jump_to_nonexistent_checkpoint_raises_error(self):
@@ -224,7 +224,7 @@ class TestTimeAwareStack:
         """Undoing reverts the last operation."""
         tas = TimeAwareStack()
         tas.push(10)
-        v2 = tas.push(20)
+        tas.push(20)
 
         tas.undo()
         assert tas.current_version() == 1
@@ -279,10 +279,10 @@ class TestTimeAwareStack:
     def test_diff_with_removal(self):
         """Diffing detects removed elements."""
         tas = TimeAwareStack()
-        v1 = tas.push(10)
-        v2 = tas.push(20)
+        tas.push(10)
+        tas.push(20)
         v3 = tas.push(30)
-        val, v4 = tas.pop()
+        _val, v4 = tas.pop()
 
         diff = tas.diff(v3, v4)
         assert 30 in diff["removed"]
@@ -334,8 +334,8 @@ class TestPersistentQueue:
         # Dequeue should follow FIFO order
         v1, q1 = q.dequeue()
         v2, q2 = q1.dequeue()
-        v3, q3 = q2.dequeue()
-        
+        v3, _q3 = q2.dequeue()
+
         assert v1 == 10
         assert v2 == 20
         assert v3 == 30
@@ -354,10 +354,10 @@ class TestPersistentQueue:
 
         v1, q1 = q.dequeue()
         assert v1 == 10
-        
+
         v2, q2 = q1.dequeue()
         assert v2 == 20
-        
+
         v3, q3 = q2.dequeue()
         assert v3 == 30
         assert q3.is_empty()
@@ -374,7 +374,7 @@ class TestPersistentQueue:
         assert q.peek() == 10
         # Queue is correct, but to_list() representation is different
         # Verify FIFO order via dequeue
-        v, q2 = q.dequeue()
+        v, _q2 = q.dequeue()
         assert v == 10
 
     def test_peek_empty_raises_error(self):
@@ -392,11 +392,11 @@ class TestPersistentQueue:
         """Queue correctly rebalances when front is empty."""
         q = PersistentQueue()
         q = q.enqueue(10).enqueue(20).enqueue(30)
-        
+
         # Dequeue all from front
-        v1, q = q.dequeue()  # 10
-        v2, q = q.dequeue()  # 20
-        
+        _v1, q = q.dequeue()  # 10
+        _v2, q = q.dequeue()  # 20
+
         # Next dequeue should rebalance
         v3, q = q.dequeue()  # 30
         assert v3 == 30
@@ -534,10 +534,10 @@ class TestPersistentDeque:
     def test_pop_front_basic(self):
         """Popping from front with only back elements."""
         d = PersistentDeque()
-        v1 = d.push_back(10)
-        v2 = d.push_back(20)
+        d.push_back(10)
+        d.push_back(20)
         v3 = d.push_front(5)  # Now front has 5
-        
+
         val, v4 = d.pop_front(v3)
         assert val == 5  # Pop from front first
         assert d.show_version(v4) == [10, 20]
@@ -545,9 +545,9 @@ class TestPersistentDeque:
     def test_pop_back_basic(self):
         """Popping from back."""
         d = PersistentDeque()
-        v1 = d.push_back(10)
+        d.push_back(10)
         v2 = d.push_back(20)
-        
+
         val, v3 = d.pop_back(v2)
         assert val == 20
         assert d.show_version(v3) == [10]
@@ -567,8 +567,8 @@ class TestPersistentDeque:
     def test_peek_front_and_back(self):
         """Peeking from front and back."""
         d = PersistentDeque()
-        v1 = d.push_back(10)
-        v2 = d.push_front(5)
+        d.push_back(10)
+        d.push_front(5)
         v3 = d.push_back(20)
 
         assert d.peek_front(v3) == 5
@@ -578,7 +578,7 @@ class TestPersistentDeque:
         """Diffing deque versions."""
         d = PersistentDeque()
         v1 = d.push_back(10)
-        v2 = d.push_front(5)
+        d.push_front(5)
         v3 = d.push_back(20)
 
         diff = d.diff(v1, v3)
@@ -836,9 +836,9 @@ class TestPersistentCounter:
     def test_increment_invalid_amount_raises_error(self):
         """Incrementing by non-positive amount raises ValueError."""
         c = PersistentCounter()
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="must be positive"):
             c.increment("a", 0)
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="must be positive"):
             c.increment("a", -1)
 
     def test_decrement_single(self):
@@ -868,7 +868,7 @@ class TestPersistentCounter:
     def test_decrement_over_count_raises_error(self):
         """Decrementing more than available raises error."""
         c = PersistentCounter().increment("a", 2)
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Cannot decrement"):
             c.decrement("a", 3)
 
     def test_most_common(self):
@@ -963,16 +963,16 @@ class TestIntegration:
         q = PersistentQueue()
         q = q.enqueue(1)
         q = q.enqueue(2)
-        
+
         v1, q = q.dequeue()
         assert v1 == 1
-        
+
         q = q.enqueue(3)
         q = q.enqueue(4)
-        
+
         v2, q = q.dequeue()
         assert v2 == 2
-        
+
         # Verify FIFO order for remaining elements
         v3, q = q.dequeue()
         assert v3 == 3
@@ -982,21 +982,21 @@ class TestIntegration:
     def test_stack_with_many_versions(self):
         """Stack with many version transitions."""
         s = TimeAwareStack()
-        
+
         for i in range(100):
             s.push(i)
-        
+
         assert len(s.all_versions()) == 101  # 0 + 100 pushes
 
     def test_list_structural_sharing(self):
         """Linked list preserves structural sharing."""
         lst = PersistentLinkedList()
         lst = lst.prepend(1).prepend(2).prepend(3)
-        
+
         # All insertions should reference shared nodes
         lst2 = lst.insert(1, 99)
         lst3 = lst.insert(2, 77)
-        
+
         assert lst.to_list() == [3, 2, 1]
         assert lst2.to_list() == [3, 99, 2, 1]
         assert lst3.to_list() == [3, 2, 77, 1]

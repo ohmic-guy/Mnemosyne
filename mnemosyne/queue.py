@@ -19,7 +19,8 @@ A queue is a FIFO (First-In-First-Out) data structure.
 This implementation uses the two-stack model for efficient persistent queues.
 """
 
-from typing import Any, List, Optional, Tuple
+from typing import Any
+
 from .stack import PersistentStack
 
 
@@ -49,8 +50,8 @@ class PersistentQueue:
 
     def __init__(
         self,
-        front: Optional[PersistentStack] = None,
-        rear: Optional[PersistentStack] = None,
+        front: PersistentStack | None = None,
+        rear: PersistentStack | None = None,
     ) -> None:
         """
         Initialize a persistent queue.
@@ -81,7 +82,7 @@ class PersistentQueue:
         """
         return PersistentQueue(self._front, self._rear.push(value))
 
-    def dequeue(self) -> Tuple[Any, "PersistentQueue"]:
+    def dequeue(self) -> tuple[Any, "PersistentQueue"]:
         """
         Remove element from the front of the queue (O(1) amortized).
 
@@ -156,7 +157,7 @@ class PersistentQueue:
     # -------------------
     # Utility
 
-    def to_list(self) -> List[Any]:
+    def to_list(self) -> list[Any]:
         """
         Return queue as a list (front → rear).
 
@@ -165,11 +166,11 @@ class PersistentQueue:
         Returns:
             List representation of the queue
         """
-        result: List[Any] = []
+        result: list[Any] = []
 
         # Collect front stack (from top going down, which is reverse of queue order)
         node = self._front._top
-        front_reversed: List[Any] = []
+        front_reversed: list[Any] = []
         while node:
             front_reversed.append(node.value)
             node = node.next

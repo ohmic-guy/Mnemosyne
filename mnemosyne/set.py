@@ -19,9 +19,9 @@ A set is an unordered collection of unique values.
 This persistent implementation maintains immutability and version history.
 """
 
-from typing import Any, List, Optional, Set as PySet
+from typing import Any
+
 from .linkedlist import PersistentLinkedList
-from .node import SinglyNode
 
 
 class PersistentSet:
@@ -47,11 +47,11 @@ class PersistentSet:
         s4 = s3.remove(10)  # {20}
     """
 
-    __slots__ = ("_buckets", "_size", "_bucket_count")
+    __slots__ = ("_bucket_count", "_buckets", "_size")
 
     def __init__(
         self,
-        buckets: Optional[List[Optional[PersistentLinkedList]]] = None,
+        buckets: list[PersistentLinkedList | None] | None = None,
         size: int = 0,
         bucket_count: int = 16,
     ) -> None:
@@ -106,30 +106,27 @@ class PersistentSet:
             return False
 
         # Search in the linked list
-        for v in bucket.to_list():
-            if v == value:
-                return True
-        return False
+        return any(v == value for v in bucket.to_list())
 
     def __contains__(self, value: Any) -> bool:
         """Support 'in' operator."""
         return self.contains(value)
 
-    def to_set(self) -> PySet[Any]:
+    def to_set(self) -> set[Any]:
         """
         Convert to a Python set.
 
         Returns:
             A Python set with all elements
         """
-        result: PySet[Any] = set()
+        result: set[Any] = set()
         for bucket in self._buckets:
             if bucket is not None:
                 for value in bucket.to_list():
                     result.add(value)
         return result
 
-    def to_list(self) -> List[Any]:
+    def to_list(self) -> list[Any]:
         """
         Convert to a Python list (unordered).
 

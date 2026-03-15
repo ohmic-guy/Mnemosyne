@@ -19,7 +19,8 @@ A deque (double-ended queue) allows push/pop from both ends.
 This implementation uses two TimeAwareStackfor efficient structural sharing.
 """
 
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
+
 from .stack import TimeAwareStack
 
 
@@ -46,14 +47,14 @@ class PersistentDeque:
         val, v4 = d.pop_front(v3)  # val=5, [10, 20]
     """
 
-    __slots__ = ("_front", "_back", "_versions", "_current_version")
+    __slots__ = ("_back", "_current_version", "_front", "_versions")
 
     def __init__(self) -> None:
         """Initialize a persistent deque."""
         self._front = TimeAwareStack()
         self._back = TimeAwareStack()
 
-        self._versions: Dict[int, Tuple[int, int]] = {0: (0, 0)}
+        self._versions: dict[int, tuple[int, int]] = {0: (0, 0)}
         self._current_version = 0
 
     # -------------------
@@ -66,7 +67,7 @@ class PersistentDeque:
     # -------------------
     # Push Operations
 
-    def push_front(self, value: Any, version: Optional[int] = None) -> int:
+    def push_front(self, value: Any, version: int | None = None) -> int:
         """
         Push a value to the front of the deque.
 
@@ -81,10 +82,10 @@ class PersistentDeque:
             KeyError: If version doesn't exist
         """
         version = self._current_version if version is None else version
-        
+
         if version not in self._versions:
             raise KeyError(f"Version {version} does not exist")
-        
+
         front_v, back_v = self._versions[version]
 
         new_front_v = self._front.push(value, front_v)
@@ -93,7 +94,7 @@ class PersistentDeque:
         self._versions[self._current_version] = (new_front_v, back_v)
         return self._current_version
 
-    def push_back(self, value: Any, version: Optional[int] = None) -> int:
+    def push_back(self, value: Any, version: int | None = None) -> int:
         """
         Push a value to the back of the deque.
 
@@ -108,10 +109,10 @@ class PersistentDeque:
             KeyError: If version doesn't exist
         """
         version = self._current_version if version is None else version
-        
+
         if version not in self._versions:
             raise KeyError(f"Version {version} does not exist")
-        
+
         front_v, back_v = self._versions[version]
 
         new_back_v = self._back.push(value, back_v)
@@ -123,7 +124,7 @@ class PersistentDeque:
     # -------------------
     # Peek Operations
 
-    def peek_front(self, version: Optional[int] = None) -> Optional[Any]:
+    def peek_front(self, version: int | None = None) -> Any | None:
         """
         View the front element without removing it.
 
@@ -137,10 +138,10 @@ class PersistentDeque:
             KeyError: If version doesn't exist
         """
         version = self._current_version if version is None else version
-        
+
         if version not in self._versions:
             raise KeyError(f"Version {version} does not exist")
-        
+
         front_v, back_v = self._versions[version]
 
         if not self._is_stack_empty(self._front, front_v):
@@ -149,7 +150,7 @@ class PersistentDeque:
         back_list = self._back.show_version(back_v)
         return back_list[-1] if back_list else None  # rightmost of back
 
-    def peek_back(self, version: Optional[int] = None) -> Optional[Any]:
+    def peek_back(self, version: int | None = None) -> Any | None:
         """
         View the back element without removing it.
 
@@ -163,10 +164,10 @@ class PersistentDeque:
             KeyError: If version doesn't exist
         """
         version = self._current_version if version is None else version
-        
+
         if version not in self._versions:
             raise KeyError(f"Version {version} does not exist")
-        
+
         front_v, back_v = self._versions[version]
 
         if not self._is_stack_empty(self._back, back_v):
@@ -178,7 +179,7 @@ class PersistentDeque:
     # -------------------
     # Pop Operations
 
-    def pop_front(self, version: Optional[int] = None) -> Tuple[Any, int]:
+    def pop_front(self, version: int | None = None) -> tuple[Any, int]:
         """
         Pop a value from the front of the deque.
 
@@ -193,10 +194,10 @@ class PersistentDeque:
             KeyError: If version doesn't exist
         """
         version = self._current_version if version is None else version
-        
+
         if version not in self._versions:
             raise KeyError(f"Version {version} does not exist")
-        
+
         front_v, back_v = self._versions[version]
 
         # Fast path: pop from front stack
@@ -224,7 +225,7 @@ class PersistentDeque:
 
         return value, self._current_version
 
-    def pop_back(self, version: Optional[int] = None) -> Tuple[Any, int]:
+    def pop_back(self, version: int | None = None) -> tuple[Any, int]:
         """
         Pop a value from the back of the deque.
 
@@ -239,10 +240,10 @@ class PersistentDeque:
             KeyError: If version doesn't exist
         """
         version = self._current_version if version is None else version
-        
+
         if version not in self._versions:
             raise KeyError(f"Version {version} does not exist")
-        
+
         front_v, back_v = self._versions[version]
 
         # Fast path: pop from back stack
@@ -273,7 +274,7 @@ class PersistentDeque:
     # -------------------
     # Utilities
 
-    def show_version(self, version: Optional[int] = None) -> List[Any]:
+    def show_version(self, version: int | None = None) -> list[Any]:
         """
         Return the deque as a list for a given version.
 
@@ -287,10 +288,10 @@ class PersistentDeque:
             KeyError: If version doesn't exist
         """
         version = self._current_version if version is None else version
-        
+
         if version not in self._versions:
             raise KeyError(f"Version {version} does not exist")
-        
+
         front_v, back_v = self._versions[version]
 
         front_list = self._front.show_version(front_v)
@@ -305,7 +306,7 @@ class PersistentDeque:
     # -------------------
     # Version Difference
 
-    def diff(self, v1: int, v2: int) -> Dict[str, Any]:
+    def diff(self, v1: int, v2: int) -> dict[str, Any]:
         """
         Compute semantic difference between two versions.
 
@@ -325,7 +326,7 @@ class PersistentDeque:
             raise KeyError(f"Version {v1} does not exist")
         if v2 not in self._versions:
             raise KeyError(f"Version {v2} does not exist")
-        
+
         d1 = self.show_version(v1)
         d2 = self.show_version(v2)
 

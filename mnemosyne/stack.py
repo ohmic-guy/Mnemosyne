@@ -19,7 +19,8 @@ A stack is a LIFO (Last-In-First-Out) data structure.
 Persistent stacks preserve all historical versions through structural sharing.
 """
 
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any
+
 from .node import SinglyNode
 
 
@@ -46,7 +47,7 @@ class PersistentStack:
 
     __slots__ = ("_top",)
 
-    def __init__(self, top: Optional[SinglyNode] = None) -> None:
+    def __init__(self, top: SinglyNode | None = None) -> None:
         """
         Initialize a persistent stack.
 
@@ -72,7 +73,7 @@ class PersistentStack:
         new_node = SinglyNode(value, self._top)
         return PersistentStack(new_node)
 
-    def pop(self) -> Tuple[Any, "PersistentStack"]:
+    def pop(self) -> tuple[Any, "PersistentStack"]:
         """
         Pop a value from the stack.
 
@@ -87,7 +88,7 @@ class PersistentStack:
         Raises:
             IndexError: If the stack is empty
         """
-        if self.is_empty():
+        if self._top is None:
             raise IndexError("pop from empty stack")
         return self._top.value, PersistentStack(self._top.next)
 
@@ -101,7 +102,7 @@ class PersistentStack:
         Raises:
             IndexError: If the stack is empty
         """
-        if self.is_empty():
+        if self._top is None:
             raise IndexError("peek from empty stack")
         return self._top.value
 
@@ -141,20 +142,20 @@ class TimeAwareStack:
         tas.undo()  # Back to v2
     """
 
-    __slots__ = ("_versions", "_current_version", "_checkpoints", "_undo_stack", "_redo_stack")
+    __slots__ = ("_checkpoints", "_current_version", "_redo_stack", "_undo_stack", "_versions")
 
     def __init__(self) -> None:
         """Initialize a time-aware stack."""
-        self._versions: Dict[int, Optional[SinglyNode]] = {0: None}
+        self._versions: dict[int, SinglyNode | None] = {0: None}
         self._current_version: int = 0
-        self._checkpoints: Dict[str, int] = {}
-        self._undo_stack: List[int] = [0]
-        self._redo_stack: List[int] = []
+        self._checkpoints: dict[str, int] = {}
+        self._undo_stack: list[int] = [0]
+        self._redo_stack: list[int] = []
 
     # -------------------
     # Core Operations
 
-    def push(self, value: Any, version: Optional[int] = None) -> int:
+    def push(self, value: Any, version: int | None = None) -> int:
         """
         Push a value onto the stack at a given version (or current).
 
@@ -169,10 +170,10 @@ class TimeAwareStack:
             KeyError: If version doesn't exist
         """
         version = self._current_version if version is None else version
-        
+
         if version not in self._versions:
             raise KeyError(f"Version {version} does not exist")
-        
+
         top = self._versions[version]
         new_node = SinglyNode(value, top)
 
@@ -184,7 +185,7 @@ class TimeAwareStack:
 
         return self._current_version
 
-    def pop(self, version: Optional[int] = None) -> Tuple[Any, int]:
+    def pop(self, version: int | None = None) -> tuple[Any, int]:
         """
         Pop a value from the stack at a given version (or current).
 
@@ -199,10 +200,10 @@ class TimeAwareStack:
             KeyError: If version doesn't exist
         """
         version = self._current_version if version is None else version
-        
+
         if version not in self._versions:
             raise KeyError(f"Version {version} does not exist")
-        
+
         top = self._versions[version]
 
         if top is None:
@@ -216,7 +217,7 @@ class TimeAwareStack:
 
         return top.value, self._current_version
 
-    def peek(self, version: Optional[int] = None) -> Optional[Any]:
+    def peek(self, version: int | None = None) -> Any | None:
         """
         View the top element without removing it.
 
@@ -230,10 +231,10 @@ class TimeAwareStack:
             KeyError: If version doesn't exist
         """
         version = self._current_version if version is None else version
-        
+
         if version not in self._versions:
             raise KeyError(f"Version {version} does not exist")
-        
+
         top = self._versions.get(version)
         return None if top is None else top.value
 
@@ -244,7 +245,7 @@ class TimeAwareStack:
     # -------------------
     # Version Utilities
 
-    def show_version(self, version: int) -> List[Any]:
+    def show_version(self, version: int) -> list[Any]:
         """
         Return stack as a list for a given version.
 
@@ -259,7 +260,7 @@ class TimeAwareStack:
         """
         if version not in self._versions:
             raise KeyError(f"Version {version} does not exist")
-        
+
         node = self._versions.get(version)
         result = []
 
@@ -269,7 +270,7 @@ class TimeAwareStack:
 
         return result[::-1]  # bottom → top
 
-    def all_versions(self) -> List[int]:
+    def all_versions(self) -> list[int]:
         """Return a sorted list of all version IDs."""
         return sorted(self._versions.keys())
 
@@ -301,7 +302,8 @@ class TimeAwareStack:
             KeyError: If checkpoint doesn't exist
         """
         if name not in self._checkpoints:
-            raise KeyError(f"No checkpoint named '{name}'. Available: {list(self._checkpoints.keys())}")
+            avail = list(self._checkpoints.keys())
+            raise KeyError(f"No checkpoint named '{name}'. Available: {avail}")
         self._current_version = self._checkpoints[name]
         return self._current_version
 
@@ -349,7 +351,7 @@ class TimeAwareStack:
     # -------------------
     # Version Difference
 
-    def diff(self, v1: int, v2: int) -> Dict[str, List[Any]]:
+    def diff(self, v1: int, v2: int) -> dict[str, list[Any]]:
         """
         Compute semantic difference between two versions.
 
@@ -370,9 +372,9 @@ class TimeAwareStack:
             raise KeyError(f"Version {v1} does not exist")
         if v2 not in self._versions:
             raise KeyError(f"Version {v2} does not exist")
-        
-        s1: Set[Any] = set(self.show_version(v1))
-        s2: Set[Any] = set(self.show_version(v2))
+
+        s1: set[Any] = set(self.show_version(v1))
+        s2: set[Any] = set(self.show_version(v2))
 
         added = s2 - s1
         removed = s1 - s2
@@ -382,7 +384,7 @@ class TimeAwareStack:
     # -------------------
     # Visualization
 
-    def visualize(self, version: Optional[int] = None) -> None:
+    def visualize(self, version: int | None = None) -> None:
         """
         Print a visual representation of the stack.
 
@@ -393,10 +395,10 @@ class TimeAwareStack:
             KeyError: If version doesn't exist
         """
         version = self._current_version if version is None else version
-        
+
         if version not in self._versions:
             raise KeyError(f"Version {version} does not exist")
-        
+
         stack_list = self.show_version(version)
 
         print(f"Stack (bottom → top) [version {version}]:")

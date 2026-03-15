@@ -1,0 +1,71 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "mnemosyne"
+dynamic = ["version"]
+description = "Production-Ready Persistent & Time-Aware Data Structures for Python"
+readme = "README.md"
+authors = [
+    { name = "Ommkar Ankit Rout", email = "omkarankit2004@gmail.com" }
+]
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+keywords = [
+    "persistent",
+    "immutable",
+    "data-structures",
+    "collections",
+    "functional",
+    "time-travel",
+    "undo",
+    "redo"
+]
+
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules"
+]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/ohmic-guy/Mnemosyne"
+Documentation = "https://github.com/ohmic-guy/Mnemosyne#readme"
+Repository = "https://github.com/ohmic-guy/Mnemosyne.git"
+Issues = "https://github.com/ohmic-guy/Mnemosyne/issues"
+Changelog = "https://github.com/ohmic-guy/Mnemosyne/blob/main/CHANGELOG.md"
+
+[tool.hatch.version]
+path = "mnemosyne/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["mnemosyne"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "PT", "SIM", "RUF"]
+ignore = []
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q"
+testpaths = [
+    "tests",
+]

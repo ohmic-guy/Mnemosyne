@@ -35,7 +35,7 @@ print("\nSet A:", s_a.to_set())
 print("Set B:", s_b.to_set())
 
 union = s_a.union(s_b)
-print("A ∪ B (union):", union.to_set())
+print("A U B (union):", union.to_set())
 
 intersection = s_a.intersection(s_b)
 print("A ∩ B (intersection):", intersection.to_set())

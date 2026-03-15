@@ -19,7 +19,7 @@ Similar to Python's collections.Counter, but immutable and persistent.
 Useful for frequency analysis, histograms, and multisets.
 """
 
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 
 class PersistentCounter:
@@ -48,7 +48,7 @@ class PersistentCounter:
 
     __slots__ = ("_counts",)
 
-    def __init__(self, counts: Optional[Dict[Any, int]] = None) -> None:
+    def __init__(self, counts: dict[Any, int] | None = None) -> None:
         """
         Initialize a persistent counter.
 
@@ -89,7 +89,7 @@ class PersistentCounter:
         """
         return sum(self._counts.values())
 
-    def to_dict(self) -> Dict[Any, int]:
+    def to_dict(self) -> dict[Any, int]:
         """
         Convert to a Python dictionary.
 
@@ -98,7 +98,7 @@ class PersistentCounter:
         """
         return dict(self._counts)
 
-    def to_list(self) -> List[Tuple[Any, int]]:
+    def to_list(self) -> list[tuple[Any, int]]:
         """
         Convert to a list of (value, count) tuples.
 
@@ -133,7 +133,7 @@ class PersistentCounter:
 
     def decrement(
         self, value: Any, amount: int = 1
-    ) -> Tuple[int, "PersistentCounter"]:
+    ) -> tuple[int, "PersistentCounter"]:
         """
         Decrement the count for a value (O(1)).
 
@@ -156,7 +156,7 @@ class PersistentCounter:
             raise KeyError(f"Value {value!r} not in counter")
 
         old_count = self._counts[value]
-        
+
         if old_count < amount:
             raise ValueError(
                 f"Cannot decrement {value!r} by {amount}: "
@@ -172,7 +172,7 @@ class PersistentCounter:
 
         return old_count, PersistentCounter(new_counts)
 
-    def most_common(self, n: Optional[int] = None) -> List[Tuple[Any, int]]:
+    def most_common(self, n: int | None = None) -> list[tuple[Any, int]]:
         """
         Return the most common values and their counts.
 
@@ -187,7 +187,7 @@ class PersistentCounter:
         )
         return sorted_items if n is None else sorted_items[:n]
 
-    def least_common(self, n: Optional[int] = None) -> List[Tuple[Any, int]]:
+    def least_common(self, n: int | None = None) -> list[tuple[Any, int]]:
         """
         Return the least common values and their counts.
 
