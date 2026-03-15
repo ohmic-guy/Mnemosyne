@@ -48,9 +48,9 @@ While in the `0.x` series, APIs may evolve as the architecture matures.
 
 #### Examples
 
-* `example_doublylinkedlist.py` — Bidirectional list operations
-* `example_set.py` — Set algebra and membership testing
-* `example_counter.py` — Frequency counting and analysis
+* `examples/example_doublylinkedlist.py` — Bidirectional list operations
+* `examples/example_set.py` — Set algebra and membership testing
+* `examples/example_counter.py` — Frequency counting and analysis
 
 #### Test Coverage
 
@@ -95,7 +95,7 @@ While in the `0.x` series, APIs may evolve as the architecture matures.
 
 #### Examples
 
-* `example_deque_diff.py` demonstrating:
+* `examples/example_deque_diff.py` demonstrating:
 
   * Version creation
   * State transitions
@@ -153,7 +153,7 @@ While in the `0.x` series, APIs may evolve as the architecture matures.
 
 #### Examples
 
-* `example_queue.py`
+* `examples/example_queue.py`
 
 ### Changed
 
@@ -192,7 +192,7 @@ While in the `0.x` series, APIs may evolve as the architecture matures.
 * Structural sharing foundation
 * MIT License
 * Comprehensive README
-* `example.py` demonstrating time-aware operations
+* `examples/example.py` demonstrating time-aware operations
 
 ### Philosophy
 

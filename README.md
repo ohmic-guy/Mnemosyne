@@ -291,20 +291,20 @@ state_at_50 = computation.at_checkpoint("step_50")
 
 **Run Tests:**
 ```bash
-python -m pytest test_mnemosyne.py -v
+python -m pytest tests/ -v
 ```
 
 **Test Results:**
 ```
-test_mnemosyne.py::TestPersistentStack ... PASSED
-test_mnemosyne.py::TestTimeAwareStack ... PASSED
-test_mnemosyne.py::TestPersistentQueue ... PASSED
-test_mnemosyne.py::TestPersistentDeque ... PASSED
-test_mnemosyne.py::TestPersistentLinkedList ... PASSED
-test_mnemosyne.py::TestPersistentDoublyLinkedList ... PASSED
-test_mnemosyne.py::TestPersistentSet ... PASSED
-test_mnemosyne.py::TestPersistentCounter ... PASSED
-test_mnemosyne.py::TestIntegration ... PASSED
+tests/test_mnemosyne.py::TestPersistentStack ... PASSED
+tests/test_mnemosyne.py::TestTimeAwareStack ... PASSED
+tests/test_mnemosyne.py::TestPersistentQueue ... PASSED
+tests/test_mnemosyne.py::TestPersistentDeque ... PASSED
+tests/test_mnemosyne.py::TestPersistentLinkedList ... PASSED
+tests/test_mnemosyne.py::TestPersistentDoublyLinkedList ... PASSED
+tests/test_mnemosyne.py::TestPersistentSet ... PASSED
+tests/test_mnemosyne.py::TestPersistentCounter ... PASSED
+tests/test_mnemosyne.py::TestIntegration ... PASSED
 
 ======= 108 passed in 0.05s =======
 ```
@@ -315,17 +315,17 @@ test_mnemosyne.py::TestIntegration ... PASSED
 
 Complete working examples for every data structure:
 
-- [example.py](example.py) — Basic stack operations
-- [example_queue.py](example_queue.py) — Queue patterns
-- [example_deque_diff.py](example_deque_diff.py) — Deque with versioning
-- [example_linkedlist.py](example_linkedlist.py) — Linked list usage
-- [example_doublylinkedlist.py](example_doublylinkedlist.py) — Bidirectional list
-- [example_set.py](example_set.py) — Set algebra operations
-- [example_counter.py](example_counter.py) — Frequency analysis
+- [examples/example.py](examples/example.py) — Basic stack operations
+- [examples/example_queue.py](examples/example_queue.py) — Queue patterns
+- [examples/example_deque_diff.py](examples/example_deque_diff.py) — Deque with versioning
+- [examples/example_linkedlist.py](examples/example_linkedlist.py) — Linked list usage
+- [examples/example_doublylinkedlist.py](examples/example_doublylinkedlist.py) — Bidirectional list
+- [examples/example_set.py](examples/example_set.py) — Set algebra operations
+- [examples/example_counter.py](examples/example_counter.py) — Frequency analysis
 
 Run all examples:
 ```bash
-for f in example*.py; do python "$f"; done
+for f in examples/example*.py; do python "$f"; done
 ```
 
 ---
@@ -457,6 +457,6 @@ limitations under the License.
 
 ## Questions?
 
-Check the [examples](.) directory for working code for every feature.
+Check the [examples/](examples/) directory for working code for every feature.
 
 Star ⭐ this repo if you find persistent data structures interesting!
