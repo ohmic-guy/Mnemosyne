@@ -180,6 +180,7 @@ print(heap2.peek()) # 5
 | `PersistentDeque` | Double-ended | push_front, push_back, pop_front, pop_back | O(1) |
 | `PersistentLinkedList` | Singly-linked | prepend, tail, insert, remove | O(1) prepend, O(k) others |
 | `PersistentDoublyLinkedList` | Doubly-linked | append, prepend, pop_front, pop_back, reverse | O(1) ends, O(n) reverse |
+| `PersistentHeap` | Priority queue (min-heap) | push, pop, peek | O(log n) |
 
 ### Collections
 
@@ -302,7 +303,7 @@ state_at_50 = computation.at_checkpoint("step_50")
 ## Testing & Quality
 
 **Test Suite:**
-- 108 comprehensive tests
+- 117 comprehensive tests
 - 100% pass rate
 - All data structures fully covered
 - Edge cases and error handling validated
@@ -321,10 +322,11 @@ tests/test_mnemosyne.py::TestPersistentDeque ... PASSED
 tests/test_mnemosyne.py::TestPersistentLinkedList ... PASSED
 tests/test_mnemosyne.py::TestPersistentDoublyLinkedList ... PASSED
 tests/test_mnemosyne.py::TestPersistentSet ... PASSED
+tests/test_mnemosyne.py::TestPersistentHeap ... PASSED
 tests/test_mnemosyne.py::TestPersistentCounter ... PASSED
 tests/test_mnemosyne.py::TestIntegration ... PASSED
 
-======= 108 passed in 0.05s =======
+======= 117 passed in 0.05s =======
 ```
 
 ---
@@ -340,6 +342,7 @@ Complete working examples for every data structure:
 - [examples/example_doublylinkedlist.py](examples/example_doublylinkedlist.py) — Bidirectional list
 - [examples/example_set.py](examples/example_set.py) — Set algebra operations
 - [examples/example_counter.py](examples/example_counter.py) — Frequency analysis
+- [examples/example_heap.py](examples/example_heap.py) — Priority queue operations
 
 Run all examples:
 ```bash
@@ -356,6 +359,7 @@ for f in examples/example*.py; do python "$f"; done
 | Enqueue/Dequeue (Queue) | O(1) amortized | O(n) with sharing | Two-stack model |
 | Add/Remove (Set) | O(1) avg | O(n) with sharing | Hash-based bucketing |
 | Increment (Counter) | O(1) | O(n) with sharing | Dictionary backed |
+| Push/Pop (Heap) | O(log n) | O(n) | Tuple-backed min-heap |
 | Version Access | O(1) | O(v) where v = versions | Direct reference |
 
 **Memory Efficiency:**
@@ -453,6 +457,11 @@ limitations under the License.
 ---
 
 ## Changelog
+
+**v0.6.0** (March 29, 2026)
+- Added: `PersistentHeap` min-heap priority queue with immutable operations
+- Added: `examples/example_heap.py` demonstrating push/pop/peek
+- Tests: 117 comprehensive tests, 100% passing
 
 **v0.5.0** (March 13, 2026)
 - Added: `PersistentDoublyLinkedList` with bidirectional operations

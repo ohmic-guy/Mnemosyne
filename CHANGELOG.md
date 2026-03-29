@@ -7,6 +7,37 @@ While in the `0.x` series, APIs may evolve as the architecture matures.
 
 ---
 
+## [0.6.0] - 2026-03-29
+
+### Added
+
+#### New Data Structures
+
+**PersistentHeap (priority queue)**
+* Immutable min-heap with tuple-backed storage and structural sharing
+* Operations:
+  * `push` — Insert element (O(log n))
+  * `pop` — Remove smallest element, returns (value, new_heap)
+  * `peek` — View smallest element
+  * `from_iterable` — Build heap from any iterable
+* Maintains immutability and leaves prior heaps untouched
+
+#### Examples
+
+* `examples/example_heap.py` — Demonstrates push, pop, peek, and structural sharing
+
+#### Test Coverage
+
+* 9 new tests covering heap creation, ordering, pop sequencing, and immutability
+* Total test suite: 117 comprehensive tests
+
+### Changed
+
+* Version updated: 0.5.0 → 0.6.0
+* `__init__.py` exports expanded to include `PersistentHeap`
+
+---
+
 ## [0.5.0] - 2026-03-13
 
 ### Added

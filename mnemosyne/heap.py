@@ -13,7 +13,7 @@
 # limitations under the License.
 
 """
-Persistent min-heap (priority queue) implementation with structural sharing.
+Persistent min-heap (priority queue) implementation.
 
 A heap is a complete binary tree where every parent is less than or equal to its children.
 This implementation keeps the underlying array immutable by storing it as a tuple and
@@ -27,11 +27,10 @@ class PersistentHeap:
     """
     Immutable persistent min-heap.
 
-    Architecture:
-        - Backed by a tuple representing the heap array (0-based indexing)
-        - Structural sharing: original heaps remain untouched; new heaps reuse unchanged
-          array segments where possible
-        - Operations return new `PersistentHeap` instances
+        Architecture:
+                - Backed by a tuple representing the heap array (0-based indexing)
+                - Original heaps remain untouched; operations create a new tuple reflecting changes
+                - Operations return new `PersistentHeap` instances
 
     Operations:
         - push: O(log n) insert
