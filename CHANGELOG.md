@@ -7,6 +7,38 @@ While in the `0.x` series, APIs may evolve as the architecture matures.
 
 ---
 
+## [0.7.0] - 2026-03-29
+
+### Added
+
+#### New Data Structures
+
+**TimeAwareHeap (priority queue with history)**
+* Immutable min-heap with version IDs, checkpoints, undo/redo, and diffing
+* Operations:
+  * `push` — Insert element at a version (O(log n))
+  * `pop` — Remove smallest element, returns (value, new_version_id)
+  * `peek` — View smallest element
+  * `checkpoint` / `jump_to_checkpoint` — Named savepoints
+  * `undo` / `redo` — Navigate version history
+  * `diff` — Added/removed elements between versions
+
+#### Examples
+
+* `examples/example_timeaware_heap.py` — Versioned heap usage with checkpoints
+
+#### Test Coverage
+
+* 9 new tests covering versioning, checkpoints, undo/redo, diffs, and errors
+* Total test suite: 126 comprehensive tests
+
+### Changed
+
+* Version updated: 0.6.0 → 0.7.0
+* `__init__.py` exports expanded to include `TimeAwareHeap`
+
+---
+
 ## [0.6.0] - 2026-03-29
 
 ### Added

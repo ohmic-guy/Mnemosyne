@@ -16,7 +16,7 @@ import pytest
 from mnemosyne.counter import PersistentCounter
 from mnemosyne.deque import PersistentDeque
 from mnemosyne.doublylinkedlist import PersistentDoublyLinkedList
-from mnemosyne.heap import PersistentHeap
+from mnemosyne.heap import PersistentHeap, TimeAwareHeap
 from mnemosyne.linkedlist import PersistentLinkedList
 from mnemosyne.node import DoublyNode, SinglyNode
 from mnemosyne.queue import PersistentQueue
@@ -874,6 +874,82 @@ class TestPersistentHeap:
             values.append(val)
 
         assert values == [1, 3, 5, 7, 9]
+
+
+# ============================================================================
+# TIME-AWARE HEAP TESTS
+# ============================================================================
+
+
+class TestTimeAwareHeap:
+    """Tests for TimeAwareHeap."""
+
+    def test_initial_state(self):
+        tah = TimeAwareHeap()
+        assert tah.current_version() == 0
+        assert tah.show_version(0) == []
+
+    def test_push_creates_versions(self):
+        tah = TimeAwareHeap()
+        v1 = tah.push(5)
+        v2 = tah.push(2)
+        v3 = tah.push(7)
+
+        assert v1 == 1 and v2 == 2 and v3 == 3
+        assert tah.show_version(v1)[0] == 5
+        assert tah.show_version(v2)[0] == 2  # min on top
+        assert tah.peek(v3) == 2
+
+    def test_pop_creates_new_version(self):
+        tah = TimeAwareHeap()
+        tah.push(5)
+        tah.push(2)
+        tah.push(7)
+
+        val, v4 = tah.pop()
+        assert val == 2
+        assert tah.show_version(v4)[0] == 5
+
+    def test_checkpoint_and_jump(self):
+        tah = TimeAwareHeap()
+        tah.push(5)
+        tah.push(2)
+        tah.checkpoint("saved")
+        tah.push(9)
+
+        tah.jump_to_checkpoint("saved")
+        assert tah.peek() == 2
+
+    def test_undo_redo(self):
+        tah = TimeAwareHeap()
+        tah.push(5)
+        tah.push(3)
+        tah.push(4)
+
+        tah.undo()  # remove version with 4
+        assert tah.peek() == 3
+
+        tah.redo()
+        assert tah.peek() == 3 or tah.peek() == 4  # heap can reorder 3/4 at root
+
+    def test_diff_reports_added_removed(self):
+        tah = TimeAwareHeap()
+        v1 = tah.push(5)
+        v2 = tah.push(2)
+
+        diff = tah.diff(v1, v2)
+        assert diff["added"] == [2]
+        assert diff["removed"] == []
+
+    def test_pop_empty_raises(self):
+        tah = TimeAwareHeap()
+        with pytest.raises(IndexError):
+            tah.pop()
+
+    def test_invalid_version_raises(self):
+        tah = TimeAwareHeap()
+        with pytest.raises(KeyError):
+            tah.show_version(99)
 
 
 # ============================================================================

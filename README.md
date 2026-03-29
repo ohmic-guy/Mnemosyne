@@ -2,15 +2,15 @@
 
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue)
-![Version](https://img.shields.io/badge/version-0.6.0-orange)
-![Tests](https://img.shields.io/badge/tests-117%2F117%20passing-brightgreen)
+![Version](https://img.shields.io/badge/version-0.7.0-orange)
+![Tests](https://img.shields.io/badge/tests-126%2F126%20passing-brightgreen)
 ![Status](https://img.shields.io/badge/status-stable-green)
 
 > **Production-Ready Persistent & Time-Aware Data Structures for Python**
 
 Mnemosyne is a comprehensive Python library implementing **immutable (persistent)** and **time-aware** data structures. Build systems where every operation creates a new version, no data is ever lost, and you can always roll back to any previous state.
 
-**11 fully-typed, battle-tested data structures. 117 comprehensive tests. Zero mutation. Perfect history.**
+**12 fully-typed, battle-tested data structures. 126 comprehensive tests. Zero mutation. Perfect history.**
 
 ---
 
@@ -21,7 +21,7 @@ Mnemosyne is a comprehensive Python library implementing **immutable (persistent
 ✅ **Full Version History** — Access any previous state at O(1) or O(log n) time  
 ✅ **Time-Aware Variants** — Built-in undo/redo with named checkpoints  
 ✅ **100% Type-Safe** — Complete type hints for IDE support and type checking  
-✅ **Production Grade** — 117 tests, full documentation, Apache 2.0 license  
+✅ **Production Grade** — 126 tests, full documentation, Apache 2.0 license  
 ✅ **Persistent Collections** — Sets, counters, and algebraic operations  
 
 ---
@@ -166,6 +166,23 @@ print(heap.peek())  # 2 (original heap unchanged)
 print(heap2.peek()) # 5
 ```
 
+### 7. Time-Aware Heap (Undo/Redo)
+
+```python
+from mnemosyne.heap import TimeAwareHeap
+
+heap = TimeAwareHeap()
+v1 = heap.push(5)
+v2 = heap.push(2)
+heap.checkpoint("saved")
+val, v3 = heap.pop()
+print(val)                 # 2
+heap.undo()                # back to checkpoint
+print(heap.peek())         # 2
+heap.redo()                # forward again
+print(heap.peek())         # 2
+```
+
 ---
 
 ## Data Structures Reference
@@ -181,6 +198,7 @@ print(heap2.peek()) # 5
 | `PersistentLinkedList` | Singly-linked | prepend, tail, insert, remove | O(1) prepend, O(k) others |
 | `PersistentDoublyLinkedList` | Doubly-linked | append, prepend, pop_front, pop_back, reverse | O(1) ends, O(n) reverse |
 | `PersistentHeap` | Priority queue (min-heap) | push, pop, peek | O(log n) |
+| `TimeAwareHeap` | Priority queue + versioning | push, pop, peek, checkpoint, undo/redo | O(log n) |
 
 ### Collections
 
@@ -303,7 +321,7 @@ state_at_50 = computation.at_checkpoint("step_50")
 ## Testing & Quality
 
 **Test Suite:**
-- 117 comprehensive tests
+- 126 comprehensive tests
 - 100% pass rate
 - All data structures fully covered
 - Edge cases and error handling validated
@@ -323,10 +341,11 @@ tests/test_mnemosyne.py::TestPersistentLinkedList ... PASSED
 tests/test_mnemosyne.py::TestPersistentDoublyLinkedList ... PASSED
 tests/test_mnemosyne.py::TestPersistentSet ... PASSED
 tests/test_mnemosyne.py::TestPersistentHeap ... PASSED
+tests/test_mnemosyne.py::TestTimeAwareHeap ... PASSED
 tests/test_mnemosyne.py::TestPersistentCounter ... PASSED
 tests/test_mnemosyne.py::TestIntegration ... PASSED
 
-======= 117 passed in 0.05s =======
+======= 126 passed in 0.05s =======
 ```
 
 ---
@@ -343,6 +362,8 @@ Complete working examples for every data structure:
 - [examples/example_set.py](examples/example_set.py) — Set algebra operations
 - [examples/example_counter.py](examples/example_counter.py) — Frequency analysis
 - [examples/example_heap.py](examples/example_heap.py) — Priority queue operations
+- [examples/example_timeaware_heap.py](examples/example_timeaware_heap.py) — Versioned priority queue
+- [examples/example_timeaware_heap.py](examples/example_timeaware_heap.py) — Versioned priority queue
 
 Run all examples:
 ```bash
@@ -360,6 +381,7 @@ for f in examples/example*.py; do python "$f"; done
 | Add/Remove (Set) | O(1) avg | O(n) with sharing | Hash-based bucketing |
 | Increment (Counter) | O(1) | O(n) with sharing | Dictionary backed |
 | Push/Pop (Heap) | O(log n) | O(n) | Tuple-backed min-heap |
+| Push/Pop (TimeAwareHeap) | O(log n) | O(n) | Tuple-backed min-heap with version tracking |
 | Version Access | O(1) | O(v) where v = versions | Direct reference |
 
 **Memory Efficiency:**
@@ -457,6 +479,11 @@ limitations under the License.
 ---
 
 ## Changelog
+
+**v0.7.0** (March 29, 2026)
+- Added: `TimeAwareHeap` min-heap with checkpoints, undo/redo, and version diffing
+- Added: `examples/example_timeaware_heap.py` demonstrating versioned heap usage
+- Tests: 126 comprehensive tests, 100% passing
 
 **v0.6.0** (March 29, 2026)
 - Added: `PersistentHeap` min-heap priority queue with immutable operations

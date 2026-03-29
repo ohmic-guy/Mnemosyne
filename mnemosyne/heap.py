@@ -13,10 +13,10 @@
 # limitations under the License.
 
 """
-Persistent min-heap (priority queue) implementation.
+Persistent min-heap (priority queue) implementations.
 
 A heap is a complete binary tree where every parent is less than or equal to its children.
-This implementation keeps the underlying array immutable by storing it as a tuple and
+These implementations keep the underlying array immutable by storing it as a tuple and
 creating a new tuple for every operation.
 """
 
@@ -145,6 +145,187 @@ class PersistentHeap:
 
     # -------------------
     # Internal Helpers
+
+    def _sift_up(self, data: list[Any], idx: int) -> None:
+        while idx > 0:
+            parent = (idx - 1) // 2
+            if data[idx] < data[parent]:
+                data[idx], data[parent] = data[parent], data[idx]
+                idx = parent
+            else:
+                break
+
+    def _sift_down(self, data: list[Any], idx: int) -> None:
+        length = len(data)
+        while True:
+            left = 2 * idx + 1
+            right = 2 * idx + 2
+            smallest = idx
+
+            if left < length and data[left] < data[smallest]:
+                smallest = left
+            if right < length and data[right] < data[smallest]:
+                smallest = right
+
+            if smallest == idx:
+                break
+
+            data[idx], data[smallest] = data[smallest], data[idx]
+            idx = smallest
+
+
+class TimeAwareHeap:
+    """
+    Time-aware min-heap with full version tracking.
+
+    Extends the persistent heap with:
+        - Version history tracking (integer version IDs)
+        - Named checkpoints
+        - Undo/Redo stacks
+        - Version diffing
+
+    Architecture:
+        _versions: Maps version_id → heap tuple (min-heap array)
+        _current_version: The active version ID
+        _checkpoints: Maps checkpoint_name → version_id
+        _undo_stack: Stack of version IDs for undo
+        _redo_stack: Stack of version IDs for redo
+    """
+
+    __slots__ = ("_checkpoints", "_current_version", "_redo_stack", "_undo_stack", "_versions")
+
+    def __init__(self) -> None:
+        self._versions: dict[int, tuple[Any, ...]] = {0: ()}
+        self._current_version: int = 0
+        self._checkpoints: dict[str, int] = {}
+        self._undo_stack: list[int] = [0]
+        self._redo_stack: list[int] = []
+
+    # -------------------
+    # Core Operations
+
+    def push(self, value: Any, version: int | None = None) -> int:
+        """
+        Insert a value into the heap at the given version (default: current).
+
+        Returns:
+            The new version ID
+        """
+        version = self._current_version if version is None else version
+        data = list(self._get_version_data(version))
+        data.append(value)
+        self._sift_up(data, len(data) - 1)
+
+        self._current_version += 1
+        self._versions[self._current_version] = tuple(data)
+        self._undo_stack.append(self._current_version)
+        self._redo_stack.clear()
+        return self._current_version
+
+    def pop(self, version: int | None = None) -> tuple[Any, int]:
+        """
+        Remove and return the smallest value from the heap at the given version.
+
+        Returns:
+            (min_value, new_version_id)
+        """
+        version = self._current_version if version is None else version
+        data = list(self._get_version_data(version))
+
+        if not data:
+            raise IndexError(f"Pop from empty heap at version {version}")
+
+        min_value = data[0]
+        last = data.pop()
+
+        if data:
+            data[0] = last
+            self._sift_down(data, 0)
+
+        self._current_version += 1
+        self._versions[self._current_version] = tuple(data)
+        self._undo_stack.append(self._current_version)
+        self._redo_stack.clear()
+        return min_value, self._current_version
+
+    def peek(self, version: int | None = None) -> Any | None:
+        """
+        View the smallest element without removing it.
+
+        Returns None if the heap is empty at that version.
+        """
+        version = self._current_version if version is None else version
+        data = self._get_version_data(version)
+        return None if not data else data[0]
+
+    # -------------------
+    # Version Introspection
+
+    def current_version(self) -> int:
+        return self._current_version
+
+    def all_versions(self) -> list[int]:
+        return sorted(self._versions.keys())
+
+    def show_version(self, version: int | None = None) -> list[Any]:
+        version = self._current_version if version is None else version
+        return list(self._get_version_data(version))
+
+    # -------------------
+    # Checkpoints
+
+    def checkpoint(self, name: str) -> int:
+        if name in self._checkpoints:
+            raise ValueError(f"Checkpoint '{name}' already exists")
+        self._checkpoints[name] = self._current_version
+        return self._current_version
+
+    def jump_to_checkpoint(self, name: str) -> int:
+        if name not in self._checkpoints:
+            raise KeyError(f"No checkpoint named '{name}'")
+        version = self._checkpoints[name]
+        self._current_version = version
+        self._undo_stack.append(version)
+        self._redo_stack.clear()
+        return version
+
+    # -------------------
+    # Undo / Redo
+
+    def undo(self) -> int:
+        if len(self._undo_stack) <= 1:
+            raise IndexError("Nothing to undo")
+        version = self._undo_stack.pop()
+        self._redo_stack.append(version)
+        self._current_version = self._undo_stack[-1]
+        return self._current_version
+
+    def redo(self) -> int:
+        if not self._redo_stack:
+            raise IndexError("Nothing to redo")
+        version = self._redo_stack.pop()
+        self._undo_stack.append(version)
+        self._current_version = version
+        return version
+
+    # -------------------
+    # Diffing
+
+    def diff(self, v1: int, v2: int) -> dict[str, list[Any]]:
+        data1 = set(self._get_version_data(v1))
+        data2 = set(self._get_version_data(v2))
+        return {
+            "added": sorted(data2 - data1),
+            "removed": sorted(data1 - data2),
+        }
+
+    # -------------------
+    # Internal Helpers
+
+    def _get_version_data(self, version: int) -> tuple[Any, ...]:
+        if version not in self._versions:
+            raise KeyError(f"Version {version} does not exist")
+        return self._versions[version]
 
     def _sift_up(self, data: list[Any], idx: int) -> None:
         while idx > 0:
