@@ -2,15 +2,15 @@
 
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue)
-![Version](https://img.shields.io/badge/version-0.5.0-orange)
-![Tests](https://img.shields.io/badge/tests-108%2F108%20passing-brightgreen)
+![Version](https://img.shields.io/badge/version-0.6.0-orange)
+![Tests](https://img.shields.io/badge/tests-117%2F117%20passing-brightgreen)
 ![Status](https://img.shields.io/badge/status-stable-green)
 
 > **Production-Ready Persistent & Time-Aware Data Structures for Python**
 
 Mnemosyne is a comprehensive Python library implementing **immutable (persistent)** and **time-aware** data structures. Build systems where every operation creates a new version, no data is ever lost, and you can always roll back to any previous state.
 
-**10 fully-typed, battle-tested data structures. 108 comprehensive tests. Zero mutation. Perfect history.**
+**11 fully-typed, battle-tested data structures. 117 comprehensive tests. Zero mutation. Perfect history.**
 
 ---
 
@@ -21,7 +21,7 @@ Mnemosyne is a comprehensive Python library implementing **immutable (persistent
 ✅ **Full Version History** — Access any previous state at O(1) or O(log n) time  
 ✅ **Time-Aware Variants** — Built-in undo/redo with named checkpoints  
 ✅ **100% Type-Safe** — Complete type hints for IDE support and type checking  
-✅ **Production Grade** — 108 tests, full documentation, Apache 2.0 license  
+✅ **Production Grade** — 117 tests, full documentation, Apache 2.0 license  
 ✅ **Persistent Collections** — Sets, counters, and algebraic operations  
 
 ---
@@ -146,6 +146,24 @@ print(s4.to_list())  # [20, 10]
 # Undo back to checkpoint
 s5 = s4.at_checkpoint("before_pop")
 print(s5.to_list())  # [30, 20, 10]
+```
+
+### 6. Persistent Heap (Priority Queue)
+
+```python
+from mnemosyne.heap import PersistentHeap
+
+heap = PersistentHeap()
+heap = heap.push(5)
+heap = heap.push(2)
+heap = heap.push(7)
+
+print(heap.peek())  # 2 (min element)
+
+val, heap2 = heap.pop()
+print(val)          # 2
+print(heap.peek())  # 2 (original heap unchanged)
+print(heap2.peek()) # 5
 ```
 
 ---

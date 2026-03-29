@@ -34,12 +34,13 @@ Core Concept:
     Historical versions remain accessible for undo/redo, diffing, and auditing.
 """
 
-__version__ = "0.5.0"
+__version__ = "0.6.0"
 __author__ = "Mnemosyne Contributors"
 
 from .counter import PersistentCounter
 from .deque import PersistentDeque
 from .doublylinkedlist import PersistentDoublyLinkedList
+from .heap import PersistentHeap
 from .linkedlist import PersistentLinkedList
 from .node import DoublyNode, SinglyNode
 from .queue import PersistentQueue
@@ -51,6 +52,7 @@ __all__ = [
     "PersistentCounter",
     "PersistentDeque",
     "PersistentDoublyLinkedList",
+    "PersistentHeap",
     "PersistentLinkedList",
     "PersistentQueue",
     "PersistentSet",

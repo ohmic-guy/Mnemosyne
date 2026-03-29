@@ -16,6 +16,7 @@ import pytest
 from mnemosyne.counter import PersistentCounter
 from mnemosyne.deque import PersistentDeque
 from mnemosyne.doublylinkedlist import PersistentDoublyLinkedList
+from mnemosyne.heap import PersistentHeap
 from mnemosyne.linkedlist import PersistentLinkedList
 from mnemosyne.node import DoublyNode, SinglyNode
 from mnemosyne.queue import PersistentQueue
@@ -791,6 +792,88 @@ class TestPersistentSet:
         """Set has a string representation."""
         s = PersistentSet().add(10).add(20)
         assert "PersistentSet" in repr(s)
+
+
+# ============================================================================
+# PERSISTENT HEAP TESTS
+# ============================================================================
+
+
+class TestPersistentHeap:
+    """Tests for PersistentHeap."""
+
+    def test_empty_heap(self):
+        """A new heap is empty."""
+        h = PersistentHeap()
+        assert h.is_empty()
+        assert len(h) == 0
+
+    def test_push_single_element(self):
+        """Pushing one element sets it as min."""
+        h = PersistentHeap()
+        h1 = h.push(10)
+        assert not h1.is_empty()
+        assert h1.peek() == 10
+        assert h.is_empty()  # original unchanged
+
+    def test_push_multiple_elements_orders_by_min(self):
+        """Min-heap preserves smallest element at root."""
+        h = PersistentHeap()
+        h = h.push(5).push(3).push(8).push(1)
+
+        assert h.peek() == 1
+        # Ensure pop returns min first
+        val, h2 = h.pop()
+        assert val == 1
+        assert h2.peek() == 3
+
+    def test_pop_returns_new_heap(self):
+        """Pop returns min value and a new heap instance."""
+        h = PersistentHeap().push(4).push(2).push(7)
+
+        val, h2 = h.pop()
+        assert val == 2
+        assert h.peek() == 2  # original unchanged
+        assert h2.peek() == 4
+
+    def test_pop_until_empty(self):
+        """Repeated pops yield ascending order until empty."""
+        h = PersistentHeap()
+        for v in [5, 1, 3, 2, 4]:
+            h = h.push(v)
+
+        values: list[int] = []
+        current = h
+        while not current.is_empty():
+            val, current = current.pop()
+            values.append(val)
+
+        assert values == sorted(values)
+        assert current.is_empty()
+
+    def test_pop_empty_raises_error(self):
+        """Popping empty heap raises IndexError."""
+        h = PersistentHeap()
+        with pytest.raises(IndexError):
+            h.pop()
+
+    def test_peek_empty_raises_error(self):
+        """Peeking empty heap raises IndexError."""
+        h = PersistentHeap()
+        with pytest.raises(IndexError):
+            h.peek()
+
+    def test_from_iterable_builds_heap(self):
+        """from_iterable inserts all items respecting heap invariant."""
+        h = PersistentHeap.from_iterable([9, 7, 5, 3, 1])
+
+        values: list[int] = []
+        current = h
+        while not current.is_empty():
+            val, current = current.pop()
+            values.append(val)
+
+        assert values == [1, 3, 5, 7, 9]
 
 
 # ============================================================================
